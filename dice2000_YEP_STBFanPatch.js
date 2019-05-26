@@ -16,6 +16,7 @@
  * ★逃走に失敗すると戦闘ターンが初期化されるバグ
  * ★StartTurnとEndTurnのウェイトは検証の結果STBには不要と判断したので除去
  * ★フロントビューに不要と思われるウェイトの除去
+ * ★リジェネの判定を順番が回ってきた時に変更
  */
 
 //グローバルに定義されている変数の存在チェック
@@ -27,13 +28,15 @@ if (Yanfly.STB.version) {
 
     //↓ターン冒頭に変なウェイトを掛ける犯人
     Window_BattleLog.prototype.startTurn = function() {
-        //this.push('wait');
+        if(BattleManager.isSTB()) this.push('wait');
     };
 
     //endTurnでのポップアップ再生ウェイト　STBだと変な間が開くので抑止
     BattleManager.endTurn = function() {
         //console.log('endTurn');
-        //if (this.isTurnBased() && this._spriteset.isPopupPlaying()) return;
+        if(!this.isSTB()){
+            if (this.isTurnBased() && this._spriteset.isPopupPlaying()) return;
+        }
         if (this.isTurnBased() && this._enteredEndPhase) {
             this._phase = 'turnEnd';
             this._preemptive = false;
@@ -64,6 +67,23 @@ if (Yanfly.STB.version) {
         return true;
     };
 
+    //行動開始時にリジェネの判定
+    var dice2000_BattleManager_processTurn = BattleManager.processTurn;
+    BattleManager.processTurn = function() {
+        if (this.isSTB() && this._subject) this._subject.regenerateAll();
+        dice2000_BattleManager_processTurn.call(this);
+    };
+
+    var dice2000_Game_Battler_onTurnEnd = Game_Battler.prototype.onTurnEnd;
+    Game_Battler.prototype.onTurnEnd = function() {
+        if(BattleManager.isSTB()){
+            this.removeStatesAuto(2);
+        }else{
+            dice2000_Game_Battler_onTurnEnd.call(this);
+        }
+    };    
+
+    //逃走バグの修正
     BattleManager.processEscape = function() {
         $gameParty.performEscape();
         SoundManager.playEscape();
