@@ -28,7 +28,7 @@ if (Yanfly.STB.version) {
 
     //↓ターン冒頭に変なウェイトを掛ける犯人
     Window_BattleLog.prototype.startTurn = function() {
-        if(BattleManager.isSTB()) this.push('wait');
+        if(!BattleManager.isSTB()) this.push('wait');
     };
 
     //endTurnでのポップアップ再生ウェイト　STBだと変な間が開くので抑止
