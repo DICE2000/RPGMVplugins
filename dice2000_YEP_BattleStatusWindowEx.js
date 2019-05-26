@@ -134,7 +134,7 @@ if (Yanfly.BSW.version) {
             var type = 'nodamage';
             if(realTarget.result().missed || realTarget.result().evaded){
                 type = 'miss';
-            }else if(this._action._damagevalue !== 0){
+            }else if(realTarget.result().hpDamage !== 0 || realTarget.result().mpDamage !== 0){
                 type = 'damage';
             }
             this._statusWindow.startAction(realTarget, type);
