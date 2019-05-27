@@ -185,61 +185,49 @@ if (Yanfly.BSW.version) {
     Window_BattleStatus.prototype.startAction = function(subject, type) {
         //console.log('startAction');
         var memberIndex = $gameParty.battleMembers().indexOf(subject);
+        var faceIndex = 0;
+        var drawflag = true;
         //console.log('味方行動');
         switch (type) {
           case 'nodamage':
             //console.log('ノーダメージ');
             //描画無し
+            drawflag = false;
             break;
           case 'damage':
             //console.log('被ダメ');
-            if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexDamage){
-                this.drawStatusFaceEx(memberIndex, paramfaceIndexDamage);
-            }
-            this._cacheMemberIndex[memberIndex] = paramfaceIndexDamage;
+            faceIndex = paramfaceIndexDamage;
             break;
           case 'miss':
             //console.log('回避');
-            if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexEvade){
-                this.drawStatusFaceEx(memberIndex, paramfaceIndexEvade);
-            }
-            this._cacheMemberIndex[memberIndex] = paramfaceIndexEvade;
+            faceIndex = paramfaceIndexEvade;
             break;
           case 'guard':
-            //console.log('ガード');            
-            if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexGuard){
-                this.drawStatusFaceEx(memberIndex, paramfaceIndexGuard);
-            }
-            this._cacheMemberIndex[memberIndex] = paramfaceIndexGuard;
+            //console.log('ガード');
+            faceIndex = paramfaceIndexGuard;
             break;            
           case 'friend':
             //console.log('味方に対する行動');
-            if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexFriend){
-                this.drawStatusFaceEx(memberIndex, paramfaceIndexFriend);
-            } 
-            this._cacheMemberIndex[memberIndex] = paramfaceIndexFriend;
+            faceIndex = paramfaceIndexFriend;
             break;
           case 'opponent':
             //console.log('敵に対する行動');
-            if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexOpponent) {
-                this.drawStatusFaceEx(memberIndex, paramfaceIndexOpponent);
-            }
-            this._cacheMemberIndex[memberIndex] = paramfaceIndexOpponent;
+            faceIndex = paramfaceIndexOpponent;
             break;
           case 'magic':
             //console.log('魔法');
-            if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexMagic){
-                this.drawStatusFaceEx(memberIndex, paramfaceIndexMagic);
-            } 
-            this._cacheMemberIndex[memberIndex] = paramfaceIndexMagic;
+            faceIndex = paramfaceIndexMagic;
             break;
           case 'specific':
             //console.log('魔法剣');
-            if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexSpecific){
-                this.drawStatusFaceEx(memberIndex, paramfaceIndexSpecific);
-            }
-            this._cacheMemberIndex[memberIndex] = paramfaceIndexSpecific;
+            faceIndex = paramfaceIndexSpecific;
             break;
+        }
+        if(drawflag){
+            if(this._cacheMemberIndex[memberIndex] !== faceIndex){
+                this.drawStatusFaceEx(memberIndex, faceIndex);
+            }
+            this._cacheMemberIndex[memberIndex] = faceIndex;            
         }
     };
     
@@ -249,60 +237,46 @@ if (Yanfly.BSW.version) {
         if (this.target_temp != []){
             this.target_temp.forEach(function(target) {
                 var memberIndex = $gameParty.battleMembers().indexOf(target);
+                var faceIndex = 0;
                 if (target.isDead()){
                     //console.log('死亡');
-                    if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexDead){
-                        this.drawStatusFaceEx(memberIndex, paramfaceIndexDead);
-                    } 
-                    this._cacheMemberIndex[memberIndex] = paramfaceIndexDead;
+                    faceIndex = paramfaceIndexDead;
                 }else if(target.isDying()){
                     //console.log('ピンチ');
-                    if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexPinch){
-                        this.drawStatusFaceEx(memberIndex, paramfaceIndexPinch);
-                    }
-                    this._cacheMemberIndex[memberIndex] = paramfaceIndexPinch;
+                    faceIndex = paramfaceIndexPinch;
                 }else if(target.isRestricted()){
                     //console.log('行動不能');
-                    if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexDamage){
-                        this.drawStatusFaceEx(memberIndex, paramfaceIndexDamage);
-                    }
-                    this._cacheMemberIndex[memberIndex] = paramfaceIndexDamage;
+                    faceIndex = paramfaceIndexDamage;
                 }else{
                     //console.log('target:生存');
-                    if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexAlive){
-                        this.drawStatusFaceEx(memberIndex, paramfaceIndexAlive);
-                    } 
-                    this._cacheMemberIndex[memberIndex] = paramfaceIndexAlive;
+                    faceIndex = paramfaceIndexAlive;
                 }
+                if(this._cacheMemberIndex[memberIndex] !== faceIndex){
+                    this.drawStatusFaceEx(memberIndex, faceIndex);
+                } 
+                this._cacheMemberIndex[memberIndex] = faceIndex;
             }, this);
         }
         if(subject.isActor()){
             var memberIndex = $gameParty.battleMembers().indexOf(subject);
-            if (subject.isDead()) {
+            var faceIndex = 0;
+            if (subject.isDead()){
                 //console.log('死亡');
-                if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexDead){
-                    this.drawStatusFaceEx(memberIndex, paramfaceIndexDead);
-                } 
-                this._cacheMemberIndex[memberIndex] = paramfaceIndexDead;
+                faceIndex = paramfaceIndexDead;
             }else if(subject.isDying()){
                 //console.log('ピンチ');
-                if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexPinch){
-                    this.drawStatusFaceEx(memberIndex, paramfaceIndexPinch);
-                }
-                this._cacheMemberIndex[memberIndex] = paramfaceIndexPinch;
+                faceIndex = paramfaceIndexPinch;
             }else if(subject.isRestricted()){
                 //console.log('行動不能');
-                if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexDamage){
-                    this.drawStatusFaceEx(memberIndex, paramfaceIndexDamage);
-                }
-                this._cacheMemberIndex[memberIndex] = paramfaceIndexDamage;
+                faceIndex = paramfaceIndexDamage;
             }else{
-                //console.log('subject:生存');
-                if(this._cacheMemberIndex[memberIndex] !== paramfaceIndexAlive){
-                    this.drawStatusFaceEx(memberIndex, paramfaceIndexAlive);
-                } 
-                this._cacheMemberIndex[memberIndex] = paramfaceIndexAlive;
+                //console.log('target:生存');
+                faceIndex = paramfaceIndexAlive;
             }
+            if(this._cacheMemberIndex[memberIndex] !== faceIndex){
+                this.drawStatusFaceEx(memberIndex, faceIndex);
+            } 
+            this._cacheMemberIndex[memberIndex] = faceIndex;
             var wy = this.contents.height - this.lineHeight();
             this.drawIcon(Yanfly.Icon.NoAction, this.basicAreaRect(memberIndex).x + 2, wy + 2);
         }
@@ -316,23 +290,29 @@ if (Yanfly.BSW.version) {
         //メンバーチェックと状態チェック
         for (var i = 0; i < $gameParty.battleMembers().length; ++i) {
             var member = $gameParty.battleMembers()[i];
-            if(member.isDead()){
-                MemberState.push(paramfaceIndexDead);
+            var faceIndex = 0;
+            if (member.isDead()){
+                //console.log('死亡');
+                faceIndex = paramfaceIndexDead;
             }else if(member.isDying()){
-                MemberState.push(paramfaceIndexPinch);
-            }else if(member.isRestricted()){         
-              MemberState.push(paramfaceIndexDamage);
-            }else{            
-              MemberState.push(paramfaceIndexAlive);              
-          }
-          if(this._cacheMember[i] !== $gameParty.battleMembers()[i]){
-              this._firstflag = true;
-          }
-          var bitmap = null;
-          if(this._firstflag || this._cacheMemberIndex[i] !== MemberState[i]){
-            bitmap = ImageManager.loadFace(member.faceName());
-            if (bitmap.width <= 0) return setTimeout(this.drawAllFaces.bind(this), 5);              
-          }
+                //console.log('ピンチ');
+                faceIndex = paramfaceIndexPinch;
+            }else if(member.isRestricted()){
+                //console.log('行動不能');
+                faceIndex = paramfaceIndexDamage;
+            }else{
+                //console.log('target:生存');
+                faceIndex = paramfaceIndexAlive;
+            }
+            MemberState.push(faceIndex);
+            if(this._cacheMember[i] !== $gameParty.battleMembers()[i]){
+                this._firstflag = true;
+            }
+            var bitmap = null;
+            if(this._firstflag || this._cacheMemberIndex[i] !== MemberState[i]){
+                bitmap = ImageManager.loadFace(member.faceName());
+                if (bitmap.width <= 0) return setTimeout(this.drawAllFaces.bind(this), 5);              
+            }
         }
         //初期描画フラグがONの場合はすべての領域をクリアする
         if(this._firstflag) this._faceContents.bitmap.clear();
@@ -387,20 +367,20 @@ if (Yanfly.BSW.version) {
         var wymod = Math.max(16, wymod);
         this.drawActorHp(actor, rect.x, 0, rect.width);
         if (this.getGaugesDrawn(actor) <= 2) {
-          this.drawActorMp(actor, rect.x, wymod, rect.width);
+            this.drawActorMp(actor, rect.x, wymod, rect.width);
         } else {
-          var ww = rect.width / 2;
-          this.drawActorMp(actor, rect.x, wymod, ww);
-          this.drawActorTp(actor, rect.x + ww, wymod, ww);
+            var ww = rect.width / 2;
+            this.drawActorMp(actor, rect.x, wymod, ww);
+            this.drawActorTp(actor, rect.x + ww, wymod, ww);
         }
         this._enableYBuffer = false;
     };
 
     Window_BattleStatus.prototype.drawBasicArea = function(rect, actor) {
         if (Imported.YEP_X_BattleSysATB && Yanfly.Param.ATBGaugeStyle) {
-          if (BattleManager.isATB()) {
-            this.drawActorAtbGauge(actor, rect.x - 2, rect.y, rect.width + 2);
-          }
+            if (BattleManager.isATB()) {
+                this.drawActorAtbGauge(actor, rect.x - 2, rect.y, rect.width + 2);
+            }
         }
         var iw = Window_Base._iconWidth;
         var wy = this.contents.height - this.lineHeight();
@@ -411,26 +391,27 @@ if (Yanfly.BSW.version) {
     };
 
     Window_BattleStatus.prototype.drawStateArea = function(rect, actor) {
-      var row = Yanfly.Param.BSWStateIconRow;
-      if (row === undefined) row = 1;
-      var wymod = (Imported.YEP_CoreEngine) ? Yanfly.Param.GaugeHeight : 6;
-      var wy = rect.y + (this.lineHeight() * row) + wymod;
-      this.drawActorIcons(actor, rect.x + 2, wy, rect.width);
+        var row = Yanfly.Param.BSWStateIconRow;
+        if (row === undefined) row = 1;
+        var wymod = (Imported.YEP_CoreEngine) ? Yanfly.Param.GaugeHeight : 6;
+        var wy = rect.y + (this.lineHeight() * row) + wymod;
+        this.drawActorIcons(actor, rect.x + 2, wy, rect.width);
     };
 
     //味方しか準備アニメを表示しない
+    //これ自分用のコードの気がするけど検証はあとで:19/5/27
     BattleManager.actionCastAnimation = function() {
-      //if (!$gameSystem.isSideView() && this._subject.isActor()) return true;
-      if (this._subject.isEnemy()) return true;
-      if (!this._action.isAttack() && !this._action.isGuard() &&
-      this._action.isSkill()) {
-        if (this._action.item().castAnimation > 0) {
-          var ani = $dataAnimations[this._action.item().castAnimation]
-          this._logWindow.showAnimation(this._subject, [this._subject],
-            this._action.item().castAnimation);
+        //if (!$gameSystem.isSideView() && this._subject.isActor()) return true;
+        if (this._subject.isEnemy()) return true;
+        if (!this._action.isAttack() && !this._action.isGuard() &&
+        this._action.isSkill()) {
+            if (this._action.item().castAnimation > 0) {
+                var ani = $dataAnimations[this._action.item().castAnimation]
+                this._logWindow.showAnimation(this._subject, [this._subject],
+                this._action.item().castAnimation);
+            }
         }
-      }
-      return true;
+        return true;
     };
 
 }   // Yanfly.BSW.version
