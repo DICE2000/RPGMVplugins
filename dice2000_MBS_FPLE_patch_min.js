@@ -5,8 +5,6 @@
 // MBS - FPLE MV Ver.1.50(2017-01-09)
 // http://yanfly.moe/2015/10/09/yep-1-core-engine/
 // Yanfly Core Engine Ver.1.28
-// http://ytomy.sakura.ne.jp/tkool/rpgtech/tech_mv/map/minimap.html
-// KameSoft ミニマップ Ver.0.1.2
 // 以上を併用できるようにする補助スクリプトです。
 // 上記以外のバージョンでも使えるかもしれません。
 // その場合はスクリプト内のバージョンチェックを書きかえてください（無保証）。
