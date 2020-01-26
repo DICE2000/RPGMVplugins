@@ -2575,7 +2575,7 @@
         }
     };
 
-	var dice2000_Scene_Map_onPause = Scene_Map.prototype.onPause;
+    var dice2000_Scene_Map_onPause = Scene_Map.prototype.onPause;
     Scene_Map.prototype.onPause = function() {
     	if(!paramCanPause){
             Input.clear();
@@ -2741,7 +2741,26 @@
     Window_Message.prototype.processDrawIcon = function(iconIndex, textState) {
         this.addtextLogState("\x1b" + "I[" + iconIndex + "]");
         _Window_Message_processDrawIcon.apply(this, arguments);
-    };    
+    };
+
+    //=============================================================================
+    // Window_NovelMessage
+    //  ノベルメッセージ表示用のクラスです。
+    //=============================================================================
+
+    Window_NovelMessage.prototype.terminateMessage = function() {
+        //元のWindows_MessageのterminateMessageの処理を持ってくる
+        this.close();
+        this._goldWindow.close();
+        $gameMessage.clear();
+        if (!this._windowClosing) {
+            this.open();
+        } else {
+            this.pushtextLog();
+            this.cleartextLogState();
+            $gameSystem.executeAutoSave();
+        }
+    };
 
     //=============================================================================
     // Window_PauseMenu
