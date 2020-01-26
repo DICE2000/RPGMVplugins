@@ -1,13 +1,14 @@
 //=============================================================================
-// NobleMushroom.js (Ver.1.7.3) + バックログ
+// NobleMushroom.js (1.10.0) + バックログ
 // ----------------------------------------------------------------------------
-// Copyright (c) 2016 DOWANGO Co., Ltd
 // This software is released under the MIT License.
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // NobleMushroomで実装されるノベルゲーム画面にバックログを（雑に）追加したものです。
 //
 // 変更履歴
+// 2020/1/26
+// Ver.0.26 Ver.1.10.0に合わせた。その影響でバックログが通常メッセージでも使えるようになった。
 // 2018/12/16
 // Ver.0.25 Ver.1.7.3にあわせてロードでウィンドウをそのままにする機能の削除。
 //          アイコンの本文における折り返し描画に暫定対応。
@@ -93,8 +94,8 @@
 // 　要望があれば考える（実装するとは言っていない）
 // ×過去ログ記録自体のONOFF
 // →NobleMusshroom.jsを使いましょう
-// ×通常ウィンドウにも過去ログを実装する
-// →スクリプト分けるべきでは→他の方がバックログスクリプトを制作しているので見送り
+// ◎通常ウィンドウにも過去ログを実装する
+// →Ver.1.10.0の実装にともなって実現した
 //
 // ----------------------------------------------------------------------------
 // 22番目の素数(NAK)
@@ -104,7 +105,19 @@
 //
 // 以下は NobleMushroom.jsの履歴です。
 //
+// NobleMushroom.js
+// ----------------------------------------------------------------------------
+// (C) 2016 DOWANGO Co., Ltd
+// This software is released under the MIT License.
+// http://opensource.org/licenses/mit-license.php
+// ----------------------------------------------------------------------------
 // Version
+// 1.10.0 2019/12/15 通常メッセージ表示のときもポーズメニューが表示されるよう仕様変更
+//                   ポーズメニューの表示を禁止できるスイッチを追加
+// 1.9.1 2019/12/15 1.9.0で通常ウィンドウモードのときにメニューを開くとエラーになる問題を修正
+// 1.9.0 2019/12/07 通常のメニュー画面の代わりにポーズメニューを使用できる機能を追加
+// 1.8.1 2019/06/27 クリック瞬間表示が有効なとき、\!以後の文章が瞬間表示されてしまう問題を修正
+// 1.8.0 2019/03/04 ウィンドウクローズ時のポーズサインの色調を設定できるよう仕様変更
 // 1.7.3 2018/12/14 ロード、クイックロード時に決定ボタンを押し続けているとロード処理が繰り返されてしまう問題を修正
 //                  アイコン画像が自動改行時に考慮されない問題を修正
 // 1.7.2 2018/09/25 MessageSkip.jsと組み合わせたときにオート待機フレームの際に取得するテキスト文字数が正しく取得できていなかった競合を解消
@@ -138,7 +151,7 @@
 //=============================================================================
 
 /*:
- * @plugindesc ノベルゲーム総合プラグイン(Ver.1.7.2) + バックログ
+ * @plugindesc ノベルゲーム総合プラグイン(Ver.1.10.0) + バックログ
  * @author トリアコンタン（改造：NAK/22番目の素数）
  *
  * @param InitialViewType
@@ -256,6 +269,16 @@
  * @default true
  * @type boolean
  *
+ * @param UsePauseMenuAlways
+ * @desc イベント実行時以外もポーズメニューを使用できます。その場合、通常のメニュー画面は使用不可となります。
+ * @default false
+ * @type boolean
+ *
+ * @param DisablePauseSwitch
+ * @desc 指定した番号のスイッチがONのとき、ポーズメニューが使用できなくなります。
+ * @default 0
+ * @type switch
+ *
  * @param NameAutoSave
  * @desc セーブ画面に表示されるオートセーブ名称です。
  * @default オートセーブ
@@ -275,6 +298,11 @@
  * @param VerticalWriting
  * @desc ノベル文章表示を縦書きにします。(ON/OFF)
  * @default false
+ * @type boolean
+ *
+ * @param PauseColor
+ * @desc ウィンドウクローズ時のポーズサインの色調(R,G,B,A)です。通常時のポーズサインと差別化する場合に指定してください。
+ * @default 255,0,0,128
  *
  * @type boolean
  * @param バックログコマンド
@@ -311,7 +339,7 @@
  * @type boolean
  * 
  * @param テキスト一括表示スイッチ
- * @desc 「オートセーブが無効の時に」\wcまでテキストを一括表示します。0で無効。
+ * @desc 「オートセーブが無効の時に」この番号のスイッチがONであれば\wcまでテキストを一括表示します。0で無効。
  * @type switch
  * @default 0
  *
@@ -425,7 +453,7 @@
  *  このプラグインはもうあなたのものです。
  */
 /*:ja
- * @plugindesc ノベルゲーム総合プラグイン(Ver.1.7.3) + バックログ
+ * @plugindesc ノベルゲーム総合プラグイン(Ver.1.10.0) + バックログ
  * @author トリアコンタン（改造：NAK/22番目の素数）
  *
  * @param 表示タイプ初期値
@@ -539,9 +567,23 @@
  * @type boolean
  *
  * @param ポーズ可能
- * @desc 表示タイプがノベルならイベント実行中にキャンセルボタンでポーズメニューが表示され、セーブやロードができます。
+ * @desc イベント実行中にキャンセルボタンでポーズメニューが表示され、セーブやロードができます。
  * @default true
  * @type boolean
+ *
+ * @param 常にポーズメニュー使用
+ * @desc イベント実行時以外もポーズメニューを使用できます。その場合、通常のメニュー画面は使用不可となります。
+ * @default false
+ * @type boolean
+ *
+ * @param ポーズ禁止スイッチ
+ * @desc 指定した番号のスイッチがONのとき、ポーズメニューが使用できなくなります。
+ * @default 0
+ * @type switch
+ *
+ * @param ポーズカラー
+ * @desc ウィンドウクローズ時のポーズサインの色調(R,G,B,A)です。通常時のポーズサインと差別化する場合に指定してください。
+ * @default 255,0,0,128
  *
  * @param オートセーブ名称
  * @desc セーブ画面に表示されるオートセーブ名称です。
@@ -598,7 +640,7 @@
  * @type boolean
  *
  * @param テキスト一括表示スイッチ
- * @desc 「オートセーブが無効の時に」\wcまでテキストを一括表示します。0で無効。
+ * @desc 「オートセーブが無効の時に」この番号のスイッチがONであれば\wcまでテキストを一括表示します。0で無効。
  * @type switch
  * @default 0
  *
@@ -765,6 +807,15 @@
         return value === 'ON' || value === 'TRUE';
     };
 
+    var getParamArrayNumber = function (paramNames, min, max) {
+        var values = (getParamOther(paramNames) || '').split(',');
+        if (arguments.length < 2) min = -Infinity;
+        if (arguments.length < 3) max = Infinity;
+        return values.map(function(value) {
+            return parseInt(value).clamp(min, max);
+        });
+    };
+
     var getArgString = function(arg, upperFlg) {
         arg = convertEscapeCharacters(arg);
         return upperFlg ? arg.toUpperCase() : arg;
@@ -810,6 +861,9 @@
     var paramCommandQuickLoad   = getParamString(['CommandQuickSave', 'Qロードコマンド']);
     var paramCommandQuickSave   = getParamString(['CommandQuickLoad', 'Qセーブコマンド']);
     var paramVerticalWriting    = getParamBoolean(['VerticalWriting', '縦書き']);
+    var paramPauseColor         = getParamArrayNumber(['PauseColor', 'ポーズカラー'], 0, 255);
+    var paramUsePauseMenuAlways = getParamBoolean(['UsePauseMenuAlways', '常にポーズメニュー使用']);
+    var paramDisablePauseSwitch = getParamNumber(['DisablePauseSwitch', 'ポーズ禁止スイッチ'], 0);
 
     //=============================================================================
     // インタフェースの定義
@@ -932,6 +986,24 @@
         _Game_Interpreter_update.apply(this, arguments);
     };
 
+    Game_Interpreter.prototype.rewindIndexUntilShowText = function() {
+        this._originalIndex = this._index;
+        while(this._list[this._index].code !== 101 && this._index > 1) {
+            this._index--;
+        }
+        this._index--;
+    };
+
+    Game_Interpreter.prototype.restoreIndex = function() {
+        if (this._originalIndex !== undefined) {
+            this._index = this._originalIndex;
+        }
+    };
+
+    Game_Interpreter.prototype.isMessageWait = function() {
+        return this._waitMode === 'message';
+    };
+
     //=============================================================================
     // Game_System
     //  全画面ウィンドウの有効フラグを管理します。
@@ -972,6 +1044,10 @@
 
     Game_System.prototype.getMessageType = function() {
         return this._messageViewType;
+    };
+
+    Game_System.prototype.isMessageTypeNovel = function() {
+        return this._messageViewType === 1;
     };
 
     Game_System.prototype.changeMessageType = function(value) {
@@ -1110,6 +1186,46 @@
             Input.clear();
         }
         if (result) actor.setName(result);
+    };
+
+    Game_Message.prototype.canCallPause = function() {
+        if (!paramCanPause) {
+            return false;
+        }
+        if (!$gameMap.isEventRunning() && !paramUsePauseMenuAlways) {
+            return false;
+        }
+        if ($gameMap.isEventRunning() && !$gameMap.isEventMessageWait()) {
+            return false;
+        }
+        if ($gamePlayer.isTransferring()) {
+            return false;
+        }
+        if (this.isPause()) {
+            return false;
+        }
+        if ($gameSwitches.value(paramDisablePauseSwitch)) {
+            return false;
+        }
+        return true;
+    };
+
+    //=============================================================================
+    // Game_Map
+    //  メッセージ表示待機中かどうかを返します。
+    //=============================================================================
+    Game_Map.prototype.isEventMessageWait = function() {
+        return this._interpreter.isMessageWait();
+    };
+
+    Game_Map.prototype.executeAutoSaveForPause = function() {
+        if (!this.isEventRunning()) {
+            $gameSystem.executeAutoSave();
+        } else if (!$gameSystem.isMessageTypeNovel()) {
+            this._interpreter.rewindIndexUntilShowText();
+            $gameSystem.executeAutoSave();
+            this._interpreter.restoreIndex();
+        }
     };
 
     //=============================================================================
@@ -1380,9 +1496,7 @@
     var _Scene_Map_createDisplayObjects      = Scene_Map.prototype.createDisplayObjects;
     Scene_Map.prototype.createDisplayObjects = function() {
         _Scene_Map_createDisplayObjects.apply(this, arguments);
-        if ($gameSystem.getMessageType() && paramCanPause) {
-            this.createPauseWindow();
-        }
+        this.createPauseWindow();
     };
 
     Scene_Map.prototype.createPauseWindow = function() {
@@ -1468,6 +1582,7 @@
     };
 
     Scene_Map.prototype.processSave = function(saveFileId) {
+        $gameMap.executeAutoSaveForPause();
         if (DataManager.shiftAutoSave(saveFileId)) {
             SoundManager.playSave();
             StorageManager.cleanBackup(saveFileId);
@@ -1551,6 +1666,20 @@
         this._messageWindow.restoreActivationSubWindow();
     };
 
+    var _Scene_Map_callMenu = Scene_Map.prototype.callMenu;
+    Scene_Map.prototype.callMenu = function() {
+        if (!$gameMessage.canCallPause()) {
+            _Scene_Map_callMenu.apply(this, arguments);
+        } else {
+            this.menuCalling = false;
+        }
+    };
+
+    var _Game_Message_isBusy = Game_Message.prototype.isBusy;
+    Game_Message.prototype.isBusy = function() {
+        return _Game_Message_isBusy.apply(this, arguments) || this.isPause();
+    };
+
     //=============================================================================
     // Window_SavefileList
     //  セーブファイルリスト画面
@@ -1625,7 +1754,7 @@
     //=============================================================================
     var _Window_Message_updateWait      = Window_Message.prototype.updateWait;
     Window_Message.prototype.updateWait = function() {
-        if (paramRapidShowClick && this._textState && this.isTriggered()) {
+        if (paramRapidShowClick && this._textState && this.isTriggered() && !this.pause) {
             this._showAll = true;
         }
         return _Window_Message_updateWait.apply(this, arguments);
@@ -1704,13 +1833,15 @@
 
     var _Window_Message_update      = Window_Message.prototype.update;
     Window_Message.prototype.update = function() {
-        if (paramCanPause && !this.isNormalMessageWindow() && !$gameMessage.isPause()) this.checkInputPause();
-        if ($gameMessage.isPause()) return;
+        this.checkInputPause();
+        if ($gameMessage.isPause()) {
+            return;
+        }
         _Window_Message_update.apply(this, arguments);
     };
 
     Window_Message.prototype.checkInputPause = function() {
-        if (this.isTriggeredPause() && this.canCallPause()) {
+        if ($gameMessage.canCallPause() && this.isTriggeredPause()) {
             SoundManager.playOk();
             this.callPauseHandler();
         }
@@ -1718,10 +1849,6 @@
 
     Window_Message.prototype.isTriggeredPause = function() {
         return Input.isTriggered('escape') || (TouchInput.isCancelled() && this.isTouchedInsideFrame());
-    };
-
-    Window_Message.prototype.canCallPause = function() {
-        return $gameMap.isEventRunning() && !$gamePlayer.isTransferring();
     };
 
     Window_Message.prototype.keepActivationSubWindow = function() {
@@ -1880,7 +2007,9 @@
         var signSprite = this._windowPauseSignSprite;
         signSprite.x   = position.x;
         signSprite.y   = position.y;
-        signSprite.setBlendColor(this._windowClosing || this._signPositionNewLine ? [255, 0, 0, 128] : [0, 0, 0, 0]);
+        if (paramPauseColor) {
+            signSprite.setBlendColor(this._windowClosing || this._signPositionNewLine ? paramPauseColor : [0, 0, 0, 0]);
+        }
     };
 
     Window_NovelMessage.prototype.getPauseSignSpritePosition = function() {
@@ -1920,14 +2049,6 @@
             this.processAutoWordWrap(textState);
         }
     };
-
-	Window_NovelMessage.prototype.processDrawIcon = function(iconIndex, textState) {
-	    _InterfaceWindow_Message.prototype.processDrawIcon.apply(this, arguments);
-        if (paramAutoWordWrap) {
-            this.processAutoWordWrap(textState);
-        }
-	};
-
 
     Window_NovelMessage.prototype.processNewLine = function(textState) {
         textState.left            = this.newLineX();
@@ -2539,69 +2660,65 @@
     };
 
     //=============================================================================
-    // Window_NovelMessage
-    //  ノベルメッセージ表示用のクラスです。
+    // Window_Message
+    //  通常のメッセージ表示用クラスにテキストログ追加
     //=============================================================================
 
-    Window_NovelMessage.prototype.addtextLogState = function(text) {
+    Window_Message.prototype.addtextLogState = function(text) {
         this._textLogState += text;
     };
     
-    Window_NovelMessage.prototype.cleartextLogState = function() {
+    Window_Message.prototype.cleartextLogState = function() {
         this._textLogState = "";
     };
     
-    Window_NovelMessage.prototype.pushtextLog = function() {
+    Window_Message.prototype.pushtextLog = function() {
         _novel79mv_textlog.push(this._textLogState);
         if (_novel79mv_textlog.length > paramHistoryPages) _novel79mv_textlog.shift();
     };
 
-    var dice2000_Window_NovelMessage_initMembers = Window_NovelMessage.prototype.initMembers;
-    Window_NovelMessage.prototype.initMembers = function() {
+    var dice2000_Window_Message_initMembers = Window_Message.prototype.initMembers;
+    Window_Message.prototype.initMembers = function() {
         //★メッセージログのテキストをクリア
         this.cleartextLogState();
         //★元のメソッドを呼び出す
-        dice2000_Window_NovelMessage_initMembers.apply(this, arguments);
+        dice2000_Window_Message_initMembers.apply(this, arguments);
     };
 
-    var dice2000_Window_NovelMessage_processNewLine = Window_NovelMessage.prototype.processNewLine;
-    Window_NovelMessage.prototype.processNewLine = function(textState) {
+    var dice2000_Window_Message_processNewLine = Window_Message.prototype.processNewLine;
+    Window_Message.prototype.processNewLine = function(textState) {
     	//★ログに改行を挿入
         this.addtextLogState('\n');
-    	dice2000_Window_NovelMessage_processNewLine.call(this, textState);
+    	dice2000_Window_Message_processNewLine.call(this, textState);
     };
 
-    var dice2000_Window_NovelMessage_newPage = Window_NovelMessage.prototype.newPage;
-    Window_NovelMessage.prototype.newPage = function(textState) {
+    var dice2000_Window_Message_newPage = Window_Message.prototype.newPage;
+    Window_Message.prototype.newPage = function(textState) {
     	if (this._textLogState !== ""){
             this.pushtextLog();
             this.cleartextLogState();
     	}
-    	dice2000_Window_NovelMessage_newPage.call(this, textState);
+    	dice2000_Window_Message_newPage.call(this, textState);
+    };
+    
+    var dice2000_Window_Message_terminateMessage = Window_Message.prototype.terminateMessage;
+    Window_Message.prototype.terminateMessage = function() {
+        this.pushtextLog();
+        this.cleartextLogState();        
+        dice2000_Window_Message_terminateMessage.apply(this, arguments);
     };
 
-    Window_NovelMessage.prototype.terminateMessage = function() {
-        _InterfaceWindow_Message.prototype.terminateMessage.apply(this, arguments);
-        if (!this._windowClosing) {
-            this.open();
-        } else {
-            this.pushtextLog();
-            this.cleartextLogState();
-            $gameSystem.executeAutoSave();
-        }
-    };
-
-    var dice2000_Window_NovelMessage_processNormalCharacter = Window_NovelMessage.prototype.processNormalCharacter;
-    Window_NovelMessage.prototype.processNormalCharacter = function(textState) {
+    var dice2000_Window_Message_processNormalCharacter = Window_Message.prototype.processNormalCharacter;
+    Window_Message.prototype.processNormalCharacter = function(textState) {
         //★制御文字を取り除いた後の一文字をログに入れる
         if(textState.text[textState.index]) this.addtextLogState(textState.text[textState.index]);
-        dice2000_Window_NovelMessage_processNormalCharacter.apply(this, arguments);
+        dice2000_Window_Message_processNormalCharacter.apply(this, arguments);
     };
     
     // この辺の実装はVX Aceでノベルゲームの改造プラグイン作った時にやったのを移植
     // http://dice2000.tumblr.com/post/138847890927/
-
-    Window_NovelMessage.prototype.drawMessageFace = function() {
+    var dice2000_Window_Message_drawMessageFace = Window_Message.prototype.drawMessageFace;
+    Window_Message.prototype.drawMessageFace = function() {
         var face_name = "";
         var face_param = "[faceoff]";
         if (!this._prevTextState || !this._textState) {
@@ -2609,7 +2726,7 @@
                 face_name = $gameMessage.faceName() + "," + $gameMessage.faceIndex() + ",0";
                 face_param = "[faceon:" + face_name + "]";
             }
-            _InterfaceWindow_Message.prototype.drawMessageFace.apply(this, arguments);
+            dice2000_Window_Message_drawMessageFace.apply(this, arguments);
         } else {
             if ($gameMessage.faceName() !== "") {
                 face_name = $gameMessage.faceName() + "," + $gameMessage.faceIndex() + "," + this._textState.y;
@@ -2620,11 +2737,11 @@
         this.addtextLogState(face_param);
     };
     
-    var _Window_NovelMessage_processDrawIcon = Window_NovelMessage.prototype.processDrawIcon
-    Window_NovelMessage.prototype.processDrawIcon = function(iconIndex, textState) {
+    var _Window_Message_processDrawIcon = Window_Message.prototype.processDrawIcon
+    Window_Message.prototype.processDrawIcon = function(iconIndex, textState) {
         this.addtextLogState("\x1b" + "I[" + iconIndex + "]");
-        _Window_NovelMessage_processDrawIcon.apply(this, arguments);
-    };
+        _Window_Message_processDrawIcon.apply(this, arguments);
+    };    
 
     //=============================================================================
     // Window_PauseMenu
@@ -2650,7 +2767,7 @@
 
     function Window_MessageLog() {
         this.initialize.apply(this, arguments);
-	};
+    };
 
     Window_MessageLog.prototype             = Object.create(Window_Command.prototype);
     Window_MessageLog.prototype.constructor = Window_MessageLog;
@@ -2889,4 +3006,3 @@
     };
 
 })();
-
