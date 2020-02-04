@@ -7,6 +7,8 @@
 // NobleMushroomで実装されるノベルゲーム画面にバックログを（雑に）追加したものです。
 //
 // 変更履歴
+// 2020/2/4
+// Ver.0.27 \!でウェイトを取った場合に一括表示が正常に処理されない不具合の修正。
 // 2020/1/26
 // Ver.0.26 Ver.1.10.0に合わせた。その影響でバックログが通常メッセージでも使えるようになった。
 // 2018/12/16
@@ -3008,6 +3010,15 @@
     // オプション「一括表示」の適用
     //==========================================================================
 
+    var dice2000_Window_NovelMessage_startPause      = Window_NovelMessage.prototype.startPause;
+    Window_NovelMessage.prototype.startPause = function() {
+        if($gameSwitches.value(paramShowAtOnce) && !paramAutoSave && !this._windowClosing){
+            //これはcontinueやbreakを書くべきなんですかね？
+        }else{
+            dice2000_Window_NovelMessage_startPause.apply(this, arguments);
+        }
+    };
+
     var dice2000_Window_NovelMessage_updateWait      = Window_NovelMessage.prototype.updateWait;
     Window_NovelMessage.prototype.updateWait = function() {
         if($gameSwitches.value(paramShowAtOnce) && !paramAutoSave){
@@ -3019,8 +3030,9 @@
     var dice2000_Window_NovelMessage_onEndOfText = Window_NovelMessage.prototype.onEndOfText;
     Window_NovelMessage.prototype.onEndOfText = function() {
     	var flag = ($gameSwitches.value(paramShowAtOnce) && !paramAutoSave);
-        if (flag && !this._windowClosing) this._pauseSkip = true;
-        if (flag && this._windowClosing) this._pauseSkip = false;
+    	if(flag){
+            this._pauseSkip = !this._windowClosing;
+        }
         dice2000_Window_NovelMessage_onEndOfText.apply(this, arguments);
     };
 
