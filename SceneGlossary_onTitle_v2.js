@@ -1,6 +1,6 @@
 //=============================================================================
 // SceneGlossary_onTitle_v2.js
-// SceneGlossary.js(Ver.2.11.0)の改造版 (modified by NAK)
+// SceneGlossary.js(2.15.0)の改造版 (modified by NAK)
 // ----------------------------------------------------------------------------
 //
 // タイトル画面に全項目が読める用語辞典＋BGM再生機能
@@ -29,6 +29,8 @@
 //　行われるようになります。 
 //
 // 変更履歴
+// 20/2/4
+// Ver.2.15.0に合わせた。
 // 18/11/29
 // Ver.2.11.0に合わせた。
 // 18/7/15
@@ -52,16 +54,47 @@
 // 
 // 以下はSceneGlossaryの履歴です（省略あり）。
 //
-//=============================================================================
-// SceneGlossary.js
-// ----------------------------------------------------------------------------
-// (C)2015-2018 Triacontane
-// This software is released under the MIT License.
-// http://opensource.org/licenses/mit-license.php
-// ----------------------------------------------------------------------------
 // Version
+// 2.15.0 2019/12/05 ウィンドウの枠と背景を非表示にできる機能を追加
+// 2.14.3 2019/12/05 2.4.0以降、用語の自動登録時にONになるスイッチおよび変数が機能していなかった問題を修正
+// 2.14.2 2019/12/04 プラグインコマンド「GLOSSARY_ITEM_CHANGE_CATEGORY」のヘルプの凡例が間違っていたので修正
+// 2.14.1 2019/11/04 2.14.0の修正で、リストの一番上のカテゴリを指定して辞書を開くと正常に表示されない問題を修正
+// 2.14.0 2019/11/03 コマンドから用語辞典を開くときに、カテゴリおよびリスト番号を指定して開ける機能を追加
+// 2.13.2 2019/09/08 2.13.1の修正に加えて収集率の表示を正常化
+// 2.13.1 2018/09/08 YEP_ItemCore.jsとの競合を解消
+// 2.13.0 2019/06/08 全ての用語アイテムを破棄するプラグインコマンドを追加
+// 2.12.0 2019/04/07 用語ページの出現条件をスイッチで制御できる機能を追加
+// 2.11.3 2019/02/07 FacePicture.jsとの競合を解消
+// 2.11.2 2019/01/04 2.11.0の対応でピクチャの拡大率が機能しなくなっていた問題を修正
+// 2.11.1 2018/12/07 収集率を取得できるスクリプトをヘルプに記載
 // 2.11.0 2018/11/24 カテゴリ選択中でも収集率が表示されるよう修正
 //                   一部の処理を軽量化
+// 2.10.0 2018/09/13 説明文に対象アイテムデータの説明や価格を埋め込める制御文字を追加
+// 2.9.2 2018/09/02 ピクチャを指定していると敵キャラデータの取得が行われない問題を修正
+// 2.9.1 2018/08/31 敵キャラのパラメータ出力機能を使う際、敵キャラの画像を表示したページでないとパラメータ表示できない問題を修正
+// 2.9.0 2018/08/12 スイッチにより特定の用語の文字色を変更できる機能を追加
+// 2.8.1 2018/07/11 文章の最後の自動改行位置が正しく判定されないケースがある問題を修正
+// 2.8.0 2018/06/14 収集率算出の対象から外せる用語を指定できる機能を追加
+// 2.7.0 2018/04/30 ひとつの用語に対して複数の画像を表示できる機能を追加
+// 2.6.2 2018/04/19 ヘルプの一部を英語化
+// 2.6.1 2018/04/07 用語選択からカテゴリ選択に戻ったときに、最後に選択していた用語の情報が残ってしまう問題を修正
+// 2.6.0 2018/03/17 テキストのY座標を数値指定できる機能を追加
+// 2.5.0 2018/03/11 画像の表示位置と表示優先度のパラメータを分けました。
+//                  モンスターの報酬情報を記入できる制御文字を追加
+// 2.4.0 2018/03/11 モンスター辞典を作成するための各種支援機能を追加しました。
+// 2.3.2 2018/03/03 画面起動時のパフォーマンスを改善
+//                  コモンイベントを実行するアイテムの使用時に内容次第でエラーになっていた問題を修正
+// 2.3.1 2018/02/24 用語情報を設定していない場合のエラーメッセージを言語別に表示するよう修正。ヘルプを分かりやすく修正。
+// 2.3.0 2018/02/17 未入手の用語を？？？等で表記できる機能を追加
+// 2.2.1 2018/01/20 setMaxItem.jsとの競合を解消。他のプラグインから用語辞典ウィンドウを改変できるように定義をグローバル領域に移動
+// 2.2.0 2018/01/14 複数のカテゴリに属する用語を作成できる機能を追加
+// 2.1.0 2017/12/12 入手履歴使用有無と用語リストウィンドウの横幅を、辞書ごとに別々に設定できるようになりました。
+// 2.0.1 2017/12/10 2.0.0においてYEP_MainMenuManager.jsとの連携時、ヘルプに示している登録内容で実行するとエラーになっていた問題を修正
+// 2.0.0 2017/12/09 用語辞典を好きなだけ追加し、各辞典ごとに仕様や表示内容をカスタマイズできる機能を追加
+//                  用語カテゴリを変更できるコマンドを追加、アイテムごとに使用可否を設定できる機能を追加
+//                  アイテム使用時に使用したアイテムIDを変数に格納する機能と、任意のスイッチを変更できる機能を追加
+// （中略）
+// 1.0.0 2016/04/17 初版
 // ----------------------------------------------------------------------------
 // [Blog]   : https://triacontane.blogspot.jp/
 // [Twitter]: https://twitter.com/triacontane/
@@ -136,6 +169,12 @@
  *
  * @param ThroughBackPicture
  * @desc 背景ピクチャの背後に通常の背景（マップ画面）を表示します。
+ * @default false
+ * @type boolean
+ * @parent Layout
+ *
+ * @param FramelessDesign
+ * @desc 各種ウィンドウの枠と背景を非表示にします。
  * @default false
  * @type boolean
  * @parent Layout
@@ -269,10 +308,12 @@
  * GLOSSARY_GAIN_ALL
  *  All terms registered in the database will be in acquisition state.
  *
- * GLOSSARY_CALL [Type]
+ * GLOSSARY_LOSE_ALL
+ *
+ * GLOSSARY_CALL [Type] [Category] [ListIndex]
  *  Call the glossary screen.
  *  If the type is omitted, it will be automatically set to "1".
- * ex：GLOSSARY_CALL 1
+ * ex：GLOSSARY_CALL 1 Character 0
  *
  * GLOSSARY_BACK
  *  Call up the glossary screen with reselecting the last selected item.
@@ -280,7 +321,7 @@
  *
  * GLOSSARY_ITEM_CHANGE_CATEGORY [Item id] [new category]
  *  Change the category of the item with the specified ID to another one.
- * ex：GLOSSARY_ITEM_CATEGORY_CHANGE 10 AAA
+ * ex：GLOSSARY_ITEM_CHANGE_CATEGORY 10 AAA
  * Only items can be changed. Weapons and armors can not be changed.
  *
  * GLOSSARY_ITEM_CHANGE_USABLE [Item id] [ON or OFF]
@@ -500,6 +541,13 @@
  * @type boolean
  * @parent Layout
  *
+ * @param FramelessDesign
+ * @text 枠なしデザイン
+ * @desc 各種ウィンドウの枠と背景を非表示にします。
+ * @default false
+ * @type boolean
+ * @parent Layout
+ *
  * @param NewGlossaryColor
  * @text 新着用語カラー
  * @desc 新着用語を明示するためのカラーです。システムカラーから選択してください。
@@ -640,6 +688,8 @@
  * <SG説明2:説明文>          // 2ページ目の用語の説明文
  * <SGピクチャ2:ファイル名>  // 2ページ目の用語のピクチャのファイル名
  * <SGピクチャ位置2:text>    // 2ページ目のピクチャの表示位置
+ * <SG表示スイッチ2:1>       // スイッチ[1]がONのときのみ2ページ目以降表示(※)
+ * ※2ページ目を非表示にすると自動的に3ページ目以降も非表示になります。
  *
  * 3ページ目以降も同様で、最大99ページまで指定できます。
  * 複数ページ表示する場合の1ページ目には「1」をつけないでください。
@@ -693,10 +743,16 @@
  *  対象は「隠しアイテム」扱いの用語のみですが、パラメータ「入手履歴を使用」が
  *  有効な場合は全てのアイテムを解禁します。（アイテム自体は取得しません）
  *
- * GLOSSARY_CALL or 用語集画面の呼び出し [種別]
+ * GLOSSARY_LOSE_ALL or 用語集全破棄
+ *  データベースに登録している全ての用語アイテムが失われます。
+ *
+ * GLOSSARY_CALL or 用語集画面の呼び出し [種別] [カテゴリ] [リスト番号]
  *  用語集画面を呼び出します。
  *  種別を省略すると、自動で「1」になります。
  * 例：GLOSSARY_CALL 2
+ *  カテゴリを指定すると指定した名称のカテゴリおよびリスト番号が指定された
+ *  状態で用語辞典が開きます。
+ * 例：GLOSSARY_CALL 2 人物 1
  *
  * GLOSSARY_BACK or 用語集画面に戻る
  *  最後に選択していた項目を再選択した状態で用語集画面を呼び出します。
@@ -705,7 +761,7 @@
  * GLOSSARY_ITEM_CHANGE_CATEGORY [アイテムID] [新カテゴリ]
  * 用語アイテムのカテゴリ変更 [アイテムID] [新カテゴリ]
  *  指定したIDのアイテムのカテゴリを別のものに変更します。　
- * 例：GLOSSARY_ITEM_CATEGORY_CHANGE 10 AAA
+ * 例：GLOSSARY_ITEM_CHANGE_CATEGORY 10 AAA
  * ※ 変更可能なのはアイテムのみです。武器と防具は変更できません。
  *
  * GLOSSARY_ITEM_CHANGE_USABLE [アイテムID] [ON or OFF]
@@ -717,6 +773,10 @@
  * ・スクリプト詳細
  * itemIdが用語アイテムとして使用可能なときにtrueを返します。
  * $gameParty.isUsableGlossaryItem(itemId);
+ *
+ * 指定したカテゴリ名および用語種別名に対応する収集率を返します。
+ * 用語種別を省略した場合は[1]が設定されます。
+ * $gameParty.getCompleteRate(categoryName, typeName);
  *
  * 利用規約：
  *  作者に無断で改変、再配布が可能で、利用形態（商用、18禁利用等）
@@ -963,7 +1023,7 @@ function Window_GlossaryComplete() {
         } else {
             text = convertEscapeCharacters(text);
         }
-        return toNumber ? parseInt(text) : text;
+        return toNumber ? parseFloat(text) : text;
     };
 
     var convertEscapeCharacters = function(text) {
@@ -1028,11 +1088,21 @@ function Window_GlossaryComplete() {
             case '用語集画面の呼び出し' :
                 $gameParty.clearGlossaryIndex();
                 $gameParty.setSelectedGlossaryType(getArgNumber(args[0], 1));
+                if (args[1]) {
+                    var index = $gameParty.setGlossaryCategoryIndexByName(args[1]);
+                    if (index >= 0) {
+                        $gameParty.setGlossaryListIndex(getArgNumber(args[2]) || 0);
+                    }
+                }
                 SceneManager.push(Scene_Glossary);
                 break;
             case 'GLOSSARY_GAIN_ALL' :
             case '用語集全取得' :
                 $gameParty.gainGlossaryAll();
+                break;
+            case 'GLOSSARY_LOSE_ALL' :
+            case '用語集全破棄' :
+                $gameParty.loseGlossaryAll();
                 break;
             case 'GLOSSARY_BACK' :
             case '用語集画面に戻る' :
@@ -1146,7 +1216,7 @@ function Window_GlossaryComplete() {
     Game_Party.prototype.getHasGlossaryPercent = function(categoryName) {
         var hasCount = 0, allCount = 0;
         this.getAllGlossaryList(true, false, categoryName).forEach(function(item) {
-            if (getMetaValues(item, ['収集対象外', 'NoCollect'])) {
+            if (this.isNoCollect(item)) {
                 return;
             }
             if (this.hasGlossary(item)) {
@@ -1154,7 +1224,23 @@ function Window_GlossaryComplete() {
             }
             allCount++;
         }.bind(this));
-        return Math.floor(hasCount / allCount * 100);
+        return allCount > 0 ? Math.floor(hasCount / allCount * 100) : 0;
+    };
+
+    Game_Party.prototype.isNoCollect = function(item) {
+        return getMetaValues(item, ['収集対象外', 'NoCollect']) || this.isIndependentItem(item);
+    };
+
+    Game_Party.prototype.isIndependentItem = function(item) {
+        return typeof Yanfly !== 'undefined' && Yanfly.Param && Yanfly.Param.ItemStartingId <= item.id;
+    };
+
+    Game_Party.prototype.getCompleteRate = function(categoryName, typeName) {
+        if (!typeName) {
+            typeName = 1;
+        }
+        this.setSelectedGlossaryType(typeName);
+        return this.getHasGlossaryPercent(categoryName);
     };
 
     Game_Party.prototype.hasGlossaryCategory = function(item, categoryName) {
@@ -1185,12 +1271,10 @@ function Window_GlossaryComplete() {
         return orderA - orderB;
     };
 
-    Game_Party.prototype.gainGlossaryFromText = function(text, setVariable) {
+    Game_Party.prototype.gainGlossaryFromText = function(text) {
         this.getAllHiddenGlossaryList().forEach(function(item) {
             if (!this.hasItem(item) && this.isAutoGlossaryWord(item) && text.contains(item.name)) {
-                if (setVariable) {
-                    this.setAutoAdditionTrigger(item);
-                }
+                this.setAutoAdditionTrigger(item);
                 this.gainGlossary(item);
             }
         }.bind(this));
@@ -1222,8 +1306,20 @@ function Window_GlossaryComplete() {
         }.bind(this));
     };
 
+    Game_Party.prototype.loseGlossaryAll = function() {
+        this.getAllGlossaryList(false, false, '').forEach(function(item) {
+            if (this.hasItem(item)) {
+                this.loseGlossary(item);
+            }
+        }.bind(this));
+    };
+
     Game_Party.prototype.gainGlossary = function(item) {
         this.gainItem(item, 1, false);
+    };
+
+    Game_Party.prototype.loseGlossary = function(item) {
+        this.loseItem(item, this.maxItems(), false);
     };
 
     var _Game_Party_gainItem      = Game_Party.prototype.gainItem;
@@ -1281,6 +1377,15 @@ function Window_GlossaryComplete() {
     Game_Party.prototype.setGlossaryCategoryIndex = function(index) {
         this.initGlossaryIndex();
         this._glossaryCategoryIndex[this.getSelectedGlossaryType()] = index;
+    };
+
+    Game_Party.prototype.setGlossaryCategoryIndexByName = function(name) {
+        var list = this.getAllGlossaryCategory();
+        var index = list.indexOf(name);
+        if (index >= 0) {
+            this.setGlossaryCategoryIndex(index);
+        }
+        return index;
     };
 
     Game_Party.prototype.getGlossaryCategoryIndex = function() {
@@ -1545,6 +1650,7 @@ function Window_GlossaryComplete() {
         Scene_MenuBase.prototype.createHelpWindow.apply(this, arguments);
         this._helpTexts = $gameParty.getGlossaryHelpMessages();
         this.updateHelp('');
+        this._helpWindow.setFramelessDesign();
     };
 
     Scene_Glossary.prototype.createGlossaryWindow = function() {
@@ -1744,6 +1850,13 @@ function Window_GlossaryComplete() {
         }
     };
 
+    Window_Base.prototype.setFramelessDesign = function() {
+        if (param.FramelessDesign) {
+            this.backOpacity = 0;
+            this.opacity = 0;
+        }
+    };
+
     //=============================================================================
     // Window_Selectable
     //  アクティブウィンドウを切り替えます。
@@ -1771,6 +1884,7 @@ function Window_GlossaryComplete() {
         this._data = null;
         this.refresh();
         this.selectLastIndex();
+        this.setFramelessDesign();
     };
 
     Window_GlossaryCategory.prototype.selectLastIndex = function() {
@@ -1837,6 +1951,7 @@ function Window_GlossaryComplete() {
         Window_ItemList.prototype.initialize.call(this, 0, gWindow.y, width, height);
         this.refresh();
         this.selectLastIndex();
+        this.setFramelessDesign();
     };
 
     Window_GlossaryList.prototype.selectLastIndex = function() {
@@ -1905,6 +2020,10 @@ function Window_GlossaryComplete() {
     };
 
     Window_GlossaryList.prototype.includes = function(item) {
+        // Resolve conflict for YEP_ItemCore.js
+        if ($gameParty.isIndependentItem(item)) {
+            return false;
+        }
         return $gameParty.isGlossaryItem(item) && this.isCategoryMatch(item) && $gameParty.isSameGlossaryType(item);
     };
 
@@ -1984,6 +2103,10 @@ function Window_GlossaryComplete() {
         this._category = category;
     };
 
+    // Resolve conflict for YEP_ItemCore.js
+    Window_GlossaryList.prototype.drawEquippedActor = function() {
+    };
+
     //=============================================================================
     // Window_GlossaryConfirm
     //  用語集確認ウィンドウです。
@@ -2029,6 +2152,7 @@ function Window_GlossaryComplete() {
         var height       = Graphics.boxHeight - y;
         this._listWindow = listWindow;
         Window_Base.prototype.initialize.call(this, x, y, width, height);
+        this.setFramelessDesign();
     };
 
     Window_GlossaryComplete.prototype.clear = function() {
@@ -2056,6 +2180,7 @@ function Window_GlossaryComplete() {
         this._pageIndex = 0;
         this._enemy     = null;
         Window_Base.prototype.initialize.call(this, x, y, width, height);
+        this.setFramelessDesign();
     };
 
     Window_Glossary.prototype.standardFontSize = function() {
@@ -2063,10 +2188,7 @@ function Window_GlossaryComplete() {
     };
 
     Window_Glossary.prototype.calcMaxPages = function(index) {
-        if (!index) {
-            index = 0;
-        }
-        var exist = !!this.getPictureName(index) || !!this.getDescription(index);
+        var exist = this.isViewablePage(index) && (!!this.getPictureName(index) || !!this.getDescription(index));
         return (exist && index < 100) ? this.calcMaxPages(index + 1) : index;
     };
 
@@ -2115,6 +2237,11 @@ function Window_GlossaryComplete() {
         return description;
     };
 
+    Window_Glossary.prototype.isViewablePage = function(index) {
+        var switchId = parseInt(getMetaValues(this._itemData, ['VisibleSwitch', '表示スイッチ'], index)) || 0;
+        return switchId > 0 ? $gameSwitches.value(switchId) : true;
+    };
+
     Window_Glossary.prototype.getCommonDescription = function() {
         return this.getMetaContents(['共通説明', 'CommonDescription'], 0);
     };
@@ -2130,7 +2257,7 @@ function Window_GlossaryComplete() {
     Window_Glossary.prototype.refresh = function(item) {
         this._itemData = item;
         this._enemy    = null;
-        this._maxPages = item && $gameParty.hasGlossary(item) ? this.calcMaxPages() : 1;
+        this._maxPages = item && $gameParty.hasGlossary(item) ? this.calcMaxPages(0) : 1;
         this.drawItem(0, true);
     };
 
@@ -2249,6 +2376,9 @@ function Window_GlossaryComplete() {
     };
 
     Window_Glossary.prototype.drawPlusPicture = function(pictureName, xText, yText) {
+        if (!pictureName) {
+            pictureName = '';
+        }
         var bitmap = ImageManager.loadPicture(pictureName);
         if (!bitmap) {
             return;
@@ -2544,7 +2674,6 @@ function Window_GlossaryComplete() {
     Scene_Title.prototype.commandNewGame = function() {
         _Scene_Title_commandNewGame.call(this);
         if(param.GlossaryOnTitleType.length !== 0) $gameParty.gainGlossarySpecific(param.GlossaryOnTitleType);
-	};
+    };
 
 })();
-
