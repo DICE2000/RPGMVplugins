@@ -4,7 +4,7 @@
 //
 // ----------------------------------------------------------------------------
 // NAK a.k.a. 22番目の素数
-// [Blog]   : https://dice2000.tumblr.com/
+// [Blog]   : http://nak.hits.jp/documents/rpgmaker.html
 // [GitHub] : https://github.com/DICE2000
 // ----------------------------------------------------------------------------
 /*:
@@ -36,7 +36,7 @@ var Yanfly = Yanfly || {};
 
 //オプションの値
 var paramWordBreak = (PluginManager.parameters('dice2000_YEP_MessageFanPatch')['MessageCore Break Word']  === 'true');
-var paramMCnameboxY = Number((PluginManager.parameters('dice2000_YEPFanPatch')['YEP MC NameBoxY']));
+var paramMCnameboxY = Number((PluginManager.parameters('dice2000_YEP_MessageFanPatch')['YEP MC NameBoxY']));
 
 if (Imported.YEP_MessageCore) {
 if (Yanfly.Message.version) {
