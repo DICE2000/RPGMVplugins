@@ -3,17 +3,15 @@
 //=============================================================================
 //
 // YanflyEnginePluginのバグや仕様をああだこうだする
-// 
-// ★YEP_BattleEngineCore(Ver.1.46)でSelect Help Windowをtrueにした際に
-//   選択肢のロック処理ができていないのを修正。
-//   味方全体（戦闘不能）単体のスキル／アイテムを生存者に使おうとする時に
+// BattleCore Ver.1.50対応
+//
+// ★味方全体（戦闘不能）単体のスキル／アイテムを生存者に使おうとする時に
 //   エラー音が返るように修正。
 //   味方単体のスキルを戦闘不能者に使おうとする時にもエラー音が返る仕様に。
-//   Todo:味方全体（戦闘不能）全体スキルで、全員が点滅してしまう
 //
 // ----------------------------------------------------------------------------
 // NAK a.k.a. 22番目の素数
-// [Blog]   : https://dice2000.tumblr.com/
+// [Blog]   : http://nak.hits.jp/documents/rpgmaker.html
 // [GitHub] : https://github.com/DICE2000
 // ----------------------------------------------------------------------------
 /*:
@@ -95,52 +93,23 @@ if (Yanfly.BEC.version) {
           this.performRecovery();
         }
     };
-    
-    Window_BattleActor.prototype.autoSelect = function() {
-        var action = BattleManager.inputtingAction();
-        if (!action) return;
-        this._inputLock = false;
-        this._selectDead = false;
-        this._selectAll = false;
-        if (action.isForUser()) {
-            this.select(BattleManager.actor().index());
-            this._inputLock = true;
-        } else if (action.isForAll()) {
-            this._inputLock = true;
-            this._selectAll = true;
-            this.updateCursor();
-        } else if (action.isForDeadFriend()) {
-            this._selectDead = true;
-            this.autoSelectFirstDeadActor();
-        }
-    };
 
-    Window_BattleActor.prototype.updateCursor = function() {
-        if (this._cursorAll || this._selectAll) {
-            var allRowsHeight = this.maxRows() * this.itemHeight();
-            this.setCursorRect(0, 0, this.contents.width, allRowsHeight);
-            this.setTopRow(0);
-        } else if (this.isCursorVisible()) {
-            var rect = this.itemRect(this.index());
-            this.setCursorRect(rect.x, rect.y, rect.width, rect.height);
-        } else {
-            this.setCursorRect(0, 0, 0, 0);
-        }
+    //味方単体のスキルが使用できない時にエラー音を返す
+    //BattleCore無関係の改造
+    Window_BattleActor.prototype.isOkEnabled = function() {
+        return Window_Selectable.prototype.isOkEnabled.call(this);
     };
 
     var dice2000_Window_BattleActor_processOk = Window_BattleActor.prototype.processOk;
     Window_BattleActor.prototype.processOk = function() {
-        if(this._selectDead && !this.actor().isDead()){
+        var action = BattleManager.inputtingAction();
+        if(!action.isForAll() && !this._selectDead && this.actor().isDead()){
             this.playBuzzerSound();
-        }else if(!this._selectDead && this.actor().isDead()){
+        }else if(!action.isForAll() && this._selectDead && !this.actor().isDead()){
             this.playBuzzerSound();
         }else{
             dice2000_Window_BattleActor_processOk.call(this);
         }
-    };
-
-    Window_BattleActor.prototype.isOkEnabled = function() {
-        return Window_Selectable.prototype.isOkEnabled.call(this);
     };
 
     //戦闘終了メッセージウィンドウ位置
