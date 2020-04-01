@@ -8,6 +8,8 @@
 // （制作者が自主的に行うことは有り得ます）
 // 
 // 更新履歴
+// 20/4/1  ウィンドウレイアウト変更関連は削除。
+//         エンカウント無効リーダーの追加。テキスト整形。
 // 18/7/30 必中スキル：命中率の補正、変数による補正、ウィンドウレイアウト変更
 // 18/7/28 戦闘のスキル一括選択を追加。命中率判定に魔法の命中率判定追加。
 //         運補正は再考中。
@@ -16,11 +18,9 @@
 //         dice2000_chengeLeaderの分割にともない、隊列ショートカットキー処理削除。
 // ----------------------------------------------------------------------------
 // NAK a.k.a. 22番目の素数
-// [Blog]   : http://dice2000.tumblr.com/
+// [Blog]   : http://nak.hits.jp/documents/rpgmaker.html
 // [GitHub] : https://github.com/DICE2000
 // ----------------------------------------------------------------------------
-
-
 /*:
  * @plugindesc 小ネタプラグイン
  * @author 22番目の素数(NAK)
@@ -32,7 +32,7 @@
  * @type number
  * @min 1
  * @max 6
- * 
+ *
  * @param ignore chara hit
  * @text キャラの命中率を無視
  * @desc 物理攻撃の命中率の判定でキャラ自身の命中率を無視します。
@@ -56,19 +56,19 @@
  * @desc 変数に必中攻撃の命中率の補正を入れます。0で無効。（YEP-SkillCoreの併用が前提）
  * @type variable
  * @default 0
- *
+ * 
  * @param battle command skill name
  * @text 戦闘のスキル一括選択
  * @desc 文字列を指定するとそのコマンド名でスキルを一括選択できます。
  * @default 
  * @type string
- *
- * @param dice2000layout
- * @text ステータス画面に追加表示
- * @desc ステータス画面を色々改造します
- * @default false
- * @type boolean
  * 
+ * @param encounter none leader id
+ * @text エンカウント無効リーダー
+ * @desc このキャラが先頭にいる時、ランダムエンカウントが停止します。0で無効。
+ * @type actor
+ * @default 0
+ *
  * @help 自分用に作ったものの内、使えそうなものを抽出しました。
  * 複数の機能を入れているので、不要なものや競合が心配されるものはコメントを参考に
  * 削除しても構いません。
@@ -116,7 +116,7 @@
  * スキルの命中率 - 対象の魔法回避率
  * 命中率を適用時：スキルの命中率 + (キャラの命中率 - 100%) - 対象の魔法回避率
  * 【必中攻撃】
- * スキルの命中率
+ * スキルの命中率：回避率無視
  * 命中率を適用時：スキルの命中率 + (キャラの命中率 - 100%)
  * 変数の補正適用時：スキルの命中率 + (キャラの命中率 - 100%) + （設定した変数の値）
  * ※変数による補正はYEP-SkillCoreの導入を前提としています
@@ -125,6 +125,9 @@
  * バトルイベントでのスキルコマンドを一つの選択肢にまとめます。
  * Window_ActorCommandにコマンドを追加する他のプラグインと相性があるので
  * プラグインの配置を工夫してください。
+ * 
+ * ★エンカウント無効リーダー
+ * ここで指定したキャラが隊列の最初にいる時にランダムエンカウントが無効になります。
  *
  * ★自分のためのイベントメモ
  * 
@@ -228,7 +231,7 @@ Math.subtract = function(value1, value2) {
     var applyCertainHit = (parameters['certain hit rate'] === 'true');
     var HitRateVariable = Number(parameters['hit rate variable']);
     var BattleCommandSkillName = parameters['battle command skill name'];
-    var Dice2000layout = (parameters['dice2000layout'] === 'true');
+    var EncounterNoneLeaderId = Number(parameters['encounter none leader id']);
 
     //ここまで：-----プラグインパラメータ-----
 
@@ -413,7 +416,7 @@ Math.subtract = function(value1, value2) {
         };
 
         Window_ActorCommand.prototype.addSkillCommands = function() {
-                this.addCommand(BattleCommandSkillName, 'skill', true);
+            this.addCommand(BattleCommandSkillName, 'skill', true);
         };
 
         Scene_Battle.prototype.commandSkill = function() {
@@ -426,119 +429,16 @@ Math.subtract = function(value1, value2) {
     }
     //ここまで：-----スキル表示結合-----
 
-    //以下は自分用
-
-    /*
-        Window_Status.prototype.refresh = function() {
-            this.contents.clear();
-            if (this._actor) {
-                var lineHeight = this.lineHeight();
-                this.drawBlock1(lineHeight * 0);
-                this.drawHorzLine(lineHeight * 1);
-                this.drawBlock2(lineHeight * 2);
-                this.drawHorzLine(lineHeight * 6);
-                this.drawBlock3(lineHeight * 7);
-                this.drawHorzLine(lineHeight * 13);
-                this.drawBlock4(lineHeight * 14);
-            }
-        };
-
-        Window_Status.prototype.drawBlock2 = function(y) {
-            this.drawActorFace(this._actor, 12, y);
-            this.drawBasicInfo(204, y);
-            this.drawExpInfo(456, y);
-        };
-
-        Window_Status.prototype.drawBlock4 = function(y) {
-            this.drawProfile(6, y);
-        };
-    */
-
-    if(Dice2000layout){
-
-        Window_Status.prototype.refresh = function() {
-            this.contents.clear();
-            if (this._actor) {
-                var lineHeight = this.lineHeight();
-                this.drawBlock1(lineHeight * 0);
-                this.drawHorzLine(lineHeight * 1);
-                this.drawBlock2(lineHeight * 2);
-                this.drawHorzLine(lineHeight * 6);
-                this.drawBlock3(lineHeight * 7);
-                //運を殺しているので1行空きが出来た
-                this.drawHorzLine(lineHeight * 12);
-                this.drawBlock4(lineHeight * 13);
-            }
-        };
-
-		Window_Status.prototype.drawActorName = function(actor, x, y, width) {
-		    width = width || this.contents.measureTextWidth(actor.name());
-		    this.changeTextColor(this.hpColor(actor));
-		    this.drawText(actor.name(), x, y, width);
-		};
-
-		Window_Status.prototype.drawActorNickname = function(actor, x, y, width) {
-		    width = width || this.contents.measureTextWidth(actor.nickname());
-		    this.resetTextColor();
-		    this.drawText(actor.nickname(), x, y, width);
-		};
-
-        Window_Status.prototype.drawBlock1 = function(y) {
-            this.drawActorName(this._actor, this.contents.fontSize, y);
-            var pos_x = this.contents.measureTextWidth(this._actor.name());
-            this.drawActorNickname(this._actor, pos_x + this.contents.fontSize, y);
-        };
-
-        Window_Status.prototype.drawBlock2 = function(y) {
-        	var pos_x = this.contentsWidth() / 3;
-            //this.drawActorFace(this._actor, 12, y);
-            this.drawBasicInfo(this.contents.fontSize, y);
-            this.drawExpInfo(this.contents.fontSize + pos_x, y);
-        };
-
-        Window_Status.prototype.drawBlock3 = function(y) {
-        	var pos_x = this.contentsWidth() / 3;
-            this.drawParameters(this.contents.fontSize + 0, y);
-            this.drawParametersEx(this.contents.fontSize + pos_x , y);
-            this.drawEquipments(this.contents.fontSize + pos_x * 2, y);
-        };
-
-		//運を殺す、略して（略さなくていい）
-		Window_Status.prototype.drawParameters = function(x, y) {
-		    var lineHeight = this.lineHeight();
-		    for (var i = 0; i < 5; i++) {
-		        var paramId = i + 2;
-		        var y2 = y + lineHeight * i;
-		        this.changeTextColor(this.systemColor());
-		        this.drawText(TextManager.param(paramId), x, y2, 160);
-		        this.resetTextColor();
-		        this.drawText(this._actor.param(paramId), x + 160, y2, 60, 'right');
-		    }
-		};
-
-        Window_Status.prototype.drawParametersEx = function(x, y) {
-            var lineHeight = this.lineHeight();
-            for (var i = 0; i < 2; i++) {
-                var paramId = i;
-                //if (paramId === 2) paramId += 2;
-                var y2 = y + lineHeight * i;
-                this.changeTextColor(this.systemColor());
-                if (paramId !== 4) this.drawText(TextManager.param(paramId + 8), x, y2, 160);
-                //if (paramId === 4) this.drawText("魔法回避率", x, y2, 160);
-                this.resetTextColor();
-                var text = (this._actor.xparam(paramId) * 100) + '%';
-                this.drawText(text, x + 160, y2, 60, 'right');
-            }
-        };
-    }
-
-/*
-	//考え中
-	Game_Action.prototype.itemCri = function(target) {
-		//これを相手との運の差にするとか？
-		//Math.max(this.lukEffectRate(target)), 0.0)
-	    return this.item().damage.critical ? this.subject().cri * (1 - target.cev) : 0;
-	};
-*/
+    //ここから：-----エンカウント無効リーダー-----
+    var dice2000_Game_Player_canEncounter = Game_Player.prototype.canEncounter;
+    Game_Player.prototype.canEncounter = function() {
+        if(EncounterNoneLeaderId !== 0){
+            return ($gameParty.leader().actorId() !== EncounterNoneLeaderId && !$gameParty.hasEncounterNone() && $gameSystem.isEncounterEnabled() &&
+            !this.isInAirship() && !this.isMoveRouteForcing() && !this.isDebugThrough());        
+        }else{
+            dice2000_Game_Player_canEncounter.apply(this, arguments);
+        }
+    };    
+    //ここまで：-----エンカウント無効リーダー-----
 
 })();;
