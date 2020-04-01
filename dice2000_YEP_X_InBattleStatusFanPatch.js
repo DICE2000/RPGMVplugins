@@ -12,6 +12,12 @@
  * @plugindesc YEPの戦闘内ステータスウィンドウの描画変更
  * @author 22番目の素数(NAK)
  * 
+ * @param show BS help window
+ * @text ヘルプウィンドウを表示する
+ * @desc ヘルプウィンドウの表示を設定します。
+ * @default false
+ * @type boolean
+ * 
  * @param Select Key UpDown
  * @text 上下でページ切替
  * @desc カーソルキー上下でもページを切り替えられるようにします。
@@ -50,11 +56,14 @@
  *
  * @help このスクリプトはYEPシリーズの下に置いてください。
  *
- * ヘルプウィンドウが表示されなくなります。それに合わせて
- * ウィンドウの表示位置を変更する必要があります。
- * Y:0
- * height:Graphics.boxHeight - this.fittingHeight(4)
- * など。
+ * 上下キーでもキャラクターを切り替えられるようにしました。
+ * 
+ * ヘルプウィンドウが無内容なのですが
+ * とりあえずプラグインパラメータでON/OFFできるようにしました。
+ * （せめて状態異常のヘルプはメモ欄でも参照してくれないと使えない）
+ * 
+ * ヘルプウィンドウ非表示＆上下キー切り替え表示で
+ * 状態異常のカーソル表示が無効になります。
  * 
  * 絶対に表示されるステータス
  * 攻撃力・防御力・魔法攻撃・魔法防御・敏捷性
@@ -75,6 +84,7 @@ var Yanfly = Yanfly || {};
 
 
 var parameters = PluginManager.parameters('dice2000_YEP_X_InBattleStatusFanPatch');
+var paramShowBSHelpWindow = (parameters['show BS help window']  === 'true');
 var paramSelectKeyUpDownInBattleStatus = (parameters['Select Key UpDown']  === 'true');
 var paramShowLukInBattleStatus = (parameters['Show luk']  === 'true');
 var paramShowHitInBattleStatus = (parameters['Show hit rate']  === 'true');
@@ -85,35 +95,50 @@ var paramMevNameInBattleStatus = String(parameters['Mev Name']);
 if (Imported.YEP_X_InBattleStatus) {
     if (Yanfly.IBS.version) {      
         if(paramSelectKeyUpDownInBattleStatus){
-            Window_InBattleStateList.prototype.updateLeftRight = function() {
-                var index = $gameParty.battleMembers().indexOf(this._battler);
-                var current = index;
-                if (Input.isRepeated('left') || Input.isRepeated('up')) {
-                  index -= 1;
-                } else if (Input.isRepeated('right') || Input.isRepeated('down')) {
-                  index += 1;
-                }
-                index = index.clamp(0, $gameParty.battleMembers().length - 1);
-                if (current !== index) {
-                  var battler = $gameParty.battleMembers()[index];
-                  this.setBattler(battler);
-                  SoundManager.playCursor();
-                }
-            };
+          Window_InBattleStateList.prototype.cursorDown = function(wrap) {
+            var index = $gameParty.battleMembers().indexOf(this._battler);
+            var current = index;
+            index += 1;
+            index = index.clamp(0, $gameParty.battleMembers().length - 1);
+            if (current !== index) {
+              var battler = $gameParty.battleMembers()[index];
+              this.setBattler(battler);
+              SoundManager.playCursor();
+            }
+          };
+          
+          Window_InBattleStateList.prototype.cursorUp = function(wrap) {
+            var index = $gameParty.battleMembers().indexOf(this._battler);
+            var current = index;
+            index -= 1;
+            index = index.clamp(0, $gameParty.battleMembers().length - 1);
+            if (current !== index) {
+              var battler = $gameParty.battleMembers()[index];
+              this.setBattler(battler);
+              SoundManager.playCursor();
+            }
+          };
         }
-    
+
+        var dice2000_Scene_Battle_commandInBattleStatus = Scene_Battle.prototype.commandInBattleStatus;
         Scene_Battle.prototype.commandInBattleStatus = function() {
-          this._helpWindow.show();
-          this._helpWindow.visible = false;
-          this._inBattleStatusWindow.show();
-          this._inBattleStateList.show();
-          this._inBattleStateList.activate();
-          this._inBattleStateList.setBattler($gameParty.battleMembers()[0]);
-          if (Imported.YEP_X_PartyLimitGauge) {
-            this._showPartyLimitGauge = $gameSystem.isShowPartyLimitGauge();
-            this._showTroopLimitGauge = $gameSystem.isShowTroopLimitGauge();
-            $gameSystem.setShowPartyLimitGauge(false);
-            $gameSystem.setShowTroopLimitGauge(false);
+          dice2000_Scene_Battle_commandInBattleStatus.apply(this, arguments);
+          this._helpWindow.visible = paramShowBSHelpWindow;
+        };
+
+        var Window_InBattleStateList_setBattler = Window_InBattleStateList.prototype.setBattler;
+        Window_InBattleStateList.prototype.setBattler = function(battler) {
+          if(!paramShowBSHelpWindow && paramSelectKeyUpDownInBattleStatus){
+            this._battler = battler;
+            this._parentWindow.setBattler(battler);
+            this.refresh();
+            this.deselect();
+            if (this._statusWindow) {
+              var index = $gameParty.battleMembers().indexOf(battler)
+              this._statusWindow.select(index);
+            }
+          }else{
+            Window_InBattleStateList_setBattler.apply(this, arguments);
           }
         };
     
