@@ -1,5 +1,5 @@
 //=============================================================================
-// NobleMushroom.js (1.10.0) + バックログ
+// NobleMushroom.js (1.12.1) + バックログ
 // ----------------------------------------------------------------------------
 // This software is released under the MIT License.
 // http://opensource.org/licenses/mit-license.php
@@ -7,6 +7,8 @@
 // NobleMushroomで実装されるノベルゲーム画面にバックログを（雑に）追加したものです。
 //
 // 変更履歴
+// 2021/6/21
+// Ver.0.28 Ver.1.12.1に合わせた。2018/12/16で追加したアイコンの折り返しの復帰。動作は未検証。
 // 2020/2/4
 // Ver.0.27 \!でウェイトを取った場合に一括表示が正常に処理されない不具合の修正。
 // 2020/1/26
@@ -101,12 +103,13 @@
 //
 // ----------------------------------------------------------------------------
 // 22番目の素数(NAK)
-// [Blog]   : http://dice2000.tumblr.com/
+// [Blog]   : https://nak.hits.jp/documents/rpgmaker.html
 // [GitHub] : https://github.com/DICE2000
 //=============================================================================
 //
 // 以下は NobleMushroom.jsの履歴です。
 //
+//=============================================================================
 // NobleMushroom.js
 // ----------------------------------------------------------------------------
 // (C) 2016 DOWANGO Co., Ltd
@@ -114,38 +117,9 @@
 // http://opensource.org/licenses/mit-license.php
 // ----------------------------------------------------------------------------
 // Version
-// 1.10.0 2019/12/15 通常メッセージ表示のときもポーズメニューが表示されるよう仕様変更
-//                   ポーズメニューの表示を禁止できるスイッチを追加
-// 1.9.1 2019/12/15 1.9.0で通常ウィンドウモードのときにメニューを開くとエラーになる問題を修正
-// 1.9.0 2019/12/07 通常のメニュー画面の代わりにポーズメニューを使用できる機能を追加
-// 1.8.1 2019/06/27 クリック瞬間表示が有効なとき、\!以後の文章が瞬間表示されてしまう問題を修正
-// 1.8.0 2019/03/04 ウィンドウクローズ時のポーズサインの色調を設定できるよう仕様変更
-// 1.7.3 2018/12/14 ロード、クイックロード時に決定ボタンを押し続けているとロード処理が繰り返されてしまう問題を修正
-//                  アイコン画像が自動改行時に考慮されない問題を修正
-// 1.7.2 2018/09/25 MessageSkip.jsと組み合わせたときにオート待機フレームの際に取得するテキスト文字数が正しく取得できていなかった競合を解消
-// 1.7.1 2017/12/30 相対フォントサイズにマイナス値を設定しても反映されなかった問題を修正
-// 1.7.0 2017/12/17 ノベルメッセージの縦書きの対応
-// 1.6.1 2017/10/29 場所移動のフェードアウト中にポーズメニューを押下すると、移動後にイベントが進まなくなる不具合を修正
-// 1.6.0 2017/10/07 自動改行が有効な場合、自動改行位置と入力した改行が重なったときに2回改行されてしまう問題を修正
-//                  パラメータの型指定機能に対応
-// 1.5.2 2017/05/25 1.5.1で オートセーブ無効時にイベントメニューからセーブすると空でセーブされてしまう問題を修正
-// 1.5.1 2017/04/03 オートセーブ無効時でも一部の条件でオートセーブされていた問題を修正
-// 1.5.0 2016/12/05 高速でメッセージを送った場合に顔グラフィックを表示しようとするとエラーになる場合がある不具合を修正
-//                  ノベル表示中に選択肢ウィンドウと数値入力ウィンドウの表示位置を調整できる機能を追加
-// 1.4.0 2016/11/11 オートセーブ有効時、一定の手順を踏むとセーブデータをロードできなくなる不具合を修正
-//                  選択肢表示後、直後にメッセージ表示がない場合でもウィンドウを閉じないよう修正
-// 1.3.0 2016/09/28 ウィンドウ枠を自由に調整できる機能を追加
-//                  ウィンドウの枠外をクリックしたときに文章を進めない設定を追加
-//                  フォント名を指定できる機能を追加（デバイスにインストールされているフォントを使用します）
-//                  明朝体、ゴシック体をどちらも使わない場合にフォントが小さく表示されてしまう問題を修正
-//                  Edgeでフォントが小さく表示されてしまう問題を修正
-// 1.2.0 2016/09/22 セーブファイルをひとつしか作成できない制約を解消
-//                  オートセーブを単独で動作するよう修正
-//                  イベント中にセーブやロードができるポーズメニューを追加
-//                  クイックセーブ＆ロード機能を追加
-//                  セーブファイルに表示できるチャプター表示機能を追加
-// 1.1.0 2016/09/20 画面サイズ変更およびモバイル用の画面サイズ設定を追加
-// 1.0.0 2016/08/16 初版
+// 1.12.1 2021/04/24 コモンイベントを実行中にポーズからセーブ、ロードするとコマンドがずれてしまう問題を修正
+// （省略）
+//
 // ----------------------------------------------------------------------------
 // [Blog]   : https://triacontane.blogspot.jp/
 // [Twitter]: https://twitter.com/triacontane/
@@ -153,7 +127,7 @@
 //=============================================================================
 
 /*:
- * @plugindesc ノベルゲーム総合プラグイン(Ver.1.10.0) + バックログ
+ * @plugindesc ノベルゲーム総合プラグイン(1.12.1) + バックログ
  * @author トリアコンタン（改造：NAK/22番目の素数）
  *
  * @param InitialViewType
@@ -181,7 +155,7 @@
  *
  * @param VariableSpeed
  * @desc メッセージ表示速度を格納する変数の番号です。変数の値が1文字描画ごとに待機するフレーム数です。
- * @default 1
+ * @default 0
  * @type variable
  *
  * @param InitialSpeed
@@ -306,6 +280,19 @@
  * @desc ウィンドウクローズ時のポーズサインの色調(R,G,B,A)です。通常時のポーズサインと差別化する場合に指定してください。
  * @default 255,0,0,128
  *
+ * @param InvalidAutoSaveOnMove
+ * @desc 場所移動やメニュー遷移の際のオートセーブを無効化します。
+ * @default false
+ * @type boolean
+ *
+ * @param MenuButtonName
+ * @desc メニューボタンを開くときのボタン名です。
+ * @default menu
+ * @type combo
+ * @option menu
+ * @option shift
+ * @option control
+ *
  * @type boolean
  * @param バックログコマンド
  * @desc ポーズメニューの「バックログ」のコマンド名称です。
@@ -355,7 +342,7 @@
  * その他、ロード時の復帰は描画が狂いやすいので、おまけと考えてください。
  *
  * 【プラグインコマンド追加】
- * ポーズメニューを無効にした場合、以下のプラグインコマンドでバックログと
+ * ポーズメニューを無効にした場合（CanPauseがfalse）、以下のプラグインコマンドでバックログと
  * セーブロード処理を直接呼び出せるようになります。
  * 
  * CallNovelHistory
@@ -365,7 +352,7 @@
  * CallNovelQSave
  * 
  * ----------↓以下はノベルゲーム総合プラグインのヘルプです。↓----------
- * 
+ *
  * It is a base plug-in for creating sound novel easily with RPG Maker MV
  * When applied, the display of the message window becomes the entire screen,
  * and the displayed message is not erased and accumulated on the screen.
@@ -455,8 +442,8 @@
  *  このプラグインはもうあなたのものです。
  */
 /*:ja
- * @plugindesc ノベルゲーム総合プラグイン(Ver.1.10.0) + バックログ
- * @author トリアコンタン（改造：NAK/22番目の素数）
+ * @plugindesc ノベルゲーム総合プラグイン
+ * @author トリアコンタン
  *
  * @param 表示タイプ初期値
  * @desc メッセージ表示タイプの初期値です。(0:通常 1:ノベル)
@@ -483,7 +470,7 @@
  *
  * @param 表示速度変数
  * @desc メッセージ表示速度を格納する変数の番号です。変数の値が1文字描画ごとに待機するフレーム数です。
- * @default 1
+ * @default 0
  * @type variable
  *
  * @param 表示速度初期値
@@ -608,6 +595,19 @@
  * @default false
  * @type boolean
  *
+ * @param 移動時のオートセーブ無効
+ * @desc 場所移動やメニュー遷移の際のオートセーブを無効化します。
+ * @default false
+ * @type boolean
+ *
+ * @param メニューボタン名称
+ * @desc メニューボタンを開くときのボタン名です。
+ * @default menu
+ * @type combo
+ * @option menu
+ * @option shift
+ * @option control
+ *
  * @param バックログコマンド
  * @desc ポーズメニューの「バックログ」のコマンド名称です。
  * @default テキスト履歴
@@ -656,7 +656,7 @@
  * その他、ロード時の復帰は描画が狂いやすいので、おまけと考えてください。
  *
  *【プラグインコマンド追加】
- * ポーズメニューを無効にした場合、以下のプラグインコマンドでバックログと
+ * ポーズメニューを無効にした場合（ポーズ可能がfalse）、以下のプラグインコマンドでバックログと
  * セーブロード処理を直接呼び出せるようになります。
  * 
  * CallNovelHistory
@@ -840,7 +840,7 @@
     //=============================================================================
     var paramInitialViewType    = getParamNumber(['InitialViewType', '表示タイプ初期値'], 0);
     var paramTitleViewType      = getParamNumber(['TitleViewType', 'タイトル表示タイプ'], 0);
-    var paramVariableSpeed      = getParamNumber(['VariableSpeed', '表示速度変数'], 1, 5000);
+    var paramVariableSpeed      = getParamNumber(['VariableSpeed', '表示速度変数'], 0, 5000);
     var paramRapidShowClick     = getParamBoolean(['RapidShowClick', 'クリック瞬間表示']);
     var paramClickInFrame       = getParamBoolean(['ClickInFrame', 'クリック範囲限定']);
     var paramInitialSpeed       = getParamNumber(['InitialSpeed', '表示速度初期値'], 0);
@@ -866,6 +866,8 @@
     var paramPauseColor         = getParamArrayNumber(['PauseColor', 'ポーズカラー'], 0, 255);
     var paramUsePauseMenuAlways = getParamBoolean(['UsePauseMenuAlways', '常にポーズメニュー使用']);
     var paramDisablePauseSwitch = getParamNumber(['DisablePauseSwitch', 'ポーズ禁止スイッチ'], 0);
+    var paramInvalidSaveOnMove  = getParamBoolean(['InvalidAutoSaveOnMove', '移動時のオートセーブ無効']);
+    var paramMenuButtonName     = getParamString(['MenuButtonName', 'メニューボタン名称']);
 
     //=============================================================================
     // インタフェースの定義
@@ -988,12 +990,25 @@
         _Game_Interpreter_update.apply(this, arguments);
     };
 
+    Game_Interpreter.prototype.shiftIndexForSave = function() {
+        if (this._childInterpreter) {
+            this._childInterpreter.shiftIndexForSave();
+            return;
+        }
+        this.rewindIndexUntilShowText();
+        $gameSystem.executeAutoSave();
+        this.restoreIndex();
+    };
+
     Game_Interpreter.prototype.rewindIndexUntilShowText = function() {
         this._originalIndex = this._index;
-        while(this._list[this._index].code !== 101 && this._index > 1) {
+        if (this.currentCommand().code === 101) {
             this._index--;
         }
         this._index--;
+        while(this.currentCommand().code !== 101 && this._index > 1) {
+            this._index--;
+        }
     };
 
     Game_Interpreter.prototype.restoreIndex = function() {
@@ -1003,7 +1018,11 @@
     };
 
     Game_Interpreter.prototype.isMessageWait = function() {
-        return this._waitMode === 'message';
+        if (this._childInterpreter) {
+            return this._childInterpreter.isMessageWait();
+        } else {
+            return this._waitMode === 'message';
+        }
     };
 
     //=============================================================================
@@ -1224,9 +1243,7 @@
         if (!this.isEventRunning()) {
             $gameSystem.executeAutoSave();
         } else if (!$gameSystem.isMessageTypeNovel()) {
-            this._interpreter.rewindIndexUntilShowText();
-            $gameSystem.executeAutoSave();
-            this._interpreter.restoreIndex();
+            this._interpreter.shiftIndexForSave();
         }
     };
 
@@ -1287,7 +1304,9 @@
     var _DataManager_createGameObjects = DataManager.createGameObjects;
     DataManager.createGameObjects      = function() {
         _DataManager_createGameObjects.apply(this, arguments);
-        $gameVariables.setValue(paramVariableSpeed, paramInitialSpeed);
+        if (paramVariableSpeed) {
+            $gameVariables.setValue(paramVariableSpeed, paramInitialSpeed);
+        }
     };
 
     var _DataManager_makeSavefileInfo = DataManager.makeSavefileInfo;
@@ -1539,7 +1558,10 @@
     };
 
     Scene_Map.prototype.callQuickLoad = function() {
-        this.processLoad(DataManager.latestSavefileId());
+        var result = this.processLoad(DataManager.latestSavefileId());
+        if (!result) {
+            this._pauseWindow.activate();
+        }
     };
 
     Scene_Map.prototype.callToTitle = function() {
@@ -1573,7 +1595,11 @@
             this.processSave(this.savefileId());
             this._pauseWindow.activate();
         } else {
-            this.processLoad(this.savefileId());
+            var result = this.processLoad(this.savefileId());
+            if (!result) {
+                this._fileListWindow.activate();
+                return;
+            }
         }
         this.closeListWindow();
     };
@@ -1599,8 +1625,10 @@
             this.fadeOutAll();
             SceneManager.goto(Scene_AutoLoad);
             $gameMessage.setPause(true);
+            return true;
         } else {
             SoundManager.playBuzzer();
+            return false;
         }
     };
 
@@ -1648,7 +1676,9 @@
     var _Scene_Map_start      = Scene_Map.prototype.start;
     Scene_Map.prototype.start = function() {
         _Scene_Map_start.apply(this, arguments);
-        $gameSystem.executeAutoSave();
+        if (!paramInvalidSaveOnMove) {
+            $gameSystem.executeAutoSave();
+        }
     };
 
     Scene_Map.prototype.onPause = function() {
@@ -1776,7 +1806,7 @@
     };
 
     Window_Message.prototype.getMessageSpeed = function() {
-        return this._tempMessageSpeed !== null ? this._tempMessageSpeed : $gameVariables.value(paramVariableSpeed);
+        return this._tempMessageSpeed !== null ? this._tempMessageSpeed : $gameVariables.value(paramVariableSpeed) || 1;
     };
 
     Window_Message.prototype.setTempMessageSpeed = function(speed) {
@@ -1850,7 +1880,8 @@
     };
 
     Window_Message.prototype.isTriggeredPause = function() {
-        return Input.isTriggered('escape') || (TouchInput.isCancelled() && this.isTouchedInsideFrame());
+        return Input.isTriggered(paramMenuButtonName || 'escape')
+            || (TouchInput.isCancelled() && this.isTouchedInsideFrame());
     };
 
     Window_Message.prototype.keepActivationSubWindow = function() {
@@ -2339,14 +2370,25 @@
     };
 
     Window_PauseMenu.prototype.numVisibleRows = function() {
-        return 6;
+        var rows = 6;
+        if (!paramCommandQuickSave) {
+            rows -= 1;
+        }
+        if (!paramCommandQuickLoad) {
+            rows -= 1;
+        }
+        return rows;
     };
 
     Window_PauseMenu.prototype.makeCommandList = function() {
         this.addCommand(TextManager.save, 'save');
         this.addCommand(paramCommandLoad, 'load');
-        this.addCommand(paramCommandQuickSave, 'quickSave');
-        this.addCommand(paramCommandQuickLoad, 'quickLoad');
+        if (paramCommandQuickSave) {
+            this.addCommand(paramCommandQuickSave, 'quickSave');
+        }
+        if (paramCommandQuickLoad) {
+            this.addCommand(paramCommandQuickLoad, 'quickLoad');
+        }
         this.addCommand(TextManager.toTitle, 'toTitle');
         this.addCommand(TextManager.cancel, 'cancel');
     };
@@ -2706,7 +2748,7 @@
     var dice2000_Window_Message_terminateMessage = Window_Message.prototype.terminateMessage;
     Window_Message.prototype.terminateMessage = function() {
         this.pushtextLog();
-        this.cleartextLogState();        
+        this.cleartextLogState();
         dice2000_Window_Message_terminateMessage.apply(this, arguments);
     };
 
@@ -2718,7 +2760,6 @@
     };
     
     // この辺の実装はVX Aceでノベルゲームの改造プラグイン作った時にやったのを移植
-    // http://dice2000.tumblr.com/post/138847890927/
     var dice2000_Window_Message_drawMessageFace = Window_Message.prototype.drawMessageFace;
     Window_Message.prototype.drawMessageFace = function() {
         var face_name = "";
@@ -2738,7 +2779,7 @@
         }
         this.addtextLogState(face_param);
     };
-    
+
     var _Window_Message_processDrawIcon = Window_Message.prototype.processDrawIcon
     Window_Message.prototype.processDrawIcon = function(iconIndex, textState) {
         this.addtextLogState("\x1b" + "I[" + iconIndex + "]");
@@ -2764,13 +2805,28 @@
         }
     };
 
+    var dice2000_Window_NovelMessage_processDrawIcon = Window_NovelMessage.prototype.processDrawIcon;
+    Window_NovelMessage.prototype.processDrawIcon = function(iconIndex, textState) {
+        dice2000_Window_NovelMessage_processDrawIcon.apply(this, arguments);
+        if (paramAutoWordWrap) {
+           this.processAutoWordWrap(textState);
+        }
+    };
+
     //=============================================================================
     // Window_PauseMenu
     //  イベント中ポーズメニュー表示用のクラスです。
     //=============================================================================
 
     Window_PauseMenu.prototype.numVisibleRows = function() {
-        return 7;
+        var rows = 7;
+        if (!paramCommandQuickSave) {
+            rows -= 1;
+        }
+        if (!paramCommandQuickLoad) {
+            rows -= 1;
+        }
+        return rows;
     };
 
     var dice2000_Window_PauseMenu_makeCommandList = Window_PauseMenu.prototype.makeCommandList;
@@ -2807,7 +2863,7 @@
 
     Window_MessageLog.prototype.windowWidth = function() {
         if (HistoryWindowWidth <= 0) {
-            return Graphics.boxWidth;            
+            return Graphics.boxWidth;
         }else{
             return HistoryWindowWidth;
         }
@@ -2870,7 +2926,7 @@
                 this.pageupMessageLog();
             }else if (eval(paramTouchNext)){
                 this.pagedownMessageLog();
-            }            
+            }
         }
     };
 
@@ -2998,7 +3054,7 @@
                     }                    
                     this.drawTextEx(c[i], pos_x, pos_y);
                     pos_x += this.textWidth(c[i]);
-                }                
+                }
             }
         }
         pos_y += this.standardFontSize() + this.textPadding();
@@ -3035,5 +3091,4 @@
         }
         dice2000_Window_NovelMessage_onEndOfText.apply(this, arguments);
     };
-
 })();
