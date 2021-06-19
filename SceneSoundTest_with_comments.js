@@ -1,13 +1,12 @@
 //=============================================================================
-// SceneSoundTest.js(Ver.2.1.0) + コメントウィンドウ
-// ----------------------------------------------------------------------------
-// Copyright (c) 2015 Triacontane
-// This software is released under the MIT License.
-// http://opensource.org/licenses/mit-license.php
+// SceneSoundTest.js(Ver.2.3.0) + コメントウィンドウ
 // ----------------------------------------------------------------------------
 // SceneSoundTestの音量／ピッチ／位相ウィンドウを、楽曲コメント欄に変更するプラグインです。
 // 変更履歴
+// 2021/6/21
+// Ver.0.4 Ver.2.3.0に合わせた。
 // 2017/12/30
+// Ver.0.3
 // @helpに改行を付加した。「コメントを消す」オプションの追加。
 // 2017/8/15
 // Ver.0.2
@@ -19,12 +18,22 @@
 // 初版。
 // ----------------------------------------------------------------------------
 // 22番目の素数(NAK)
-// [Blog]   : http://dice2000.tumblr.com/
 // [GitHub] : https://github.com/DICE2000
 //=============================================================================
 // 
 // 以下は SceneSoundTest.jsの履歴です。
 // 
+//=============================================================================
+// SceneSoundTest.js
+// ----------------------------------------------------------------------------
+// (C)2016 Triacontane
+// This software is released under the MIT License.
+// http://opensource.org/licenses/mit-license.php
+// ----------------------------------------------------------------------------
+// Version
+// 2.3.0 2020/05/17 ヘルプウィンドウに曲名を表示するかどうかの設定を追加
+// 2.2.0 2020/05/04 データファイルのtype指定が大文字の場合でも正常に動作するよう修正
+//                  プラグインの型指定機能に対応
 // 2.1.0 2017/06/21 BGMが一曲も存在しないデータリストを読み込んで再生しようとするとエラーになる問題を修正
 //                  リストウィンドウでの操作タイプを2パターン用意しました。
 // 2.0.0 2017/06/18 BGS、ME、SEの演奏機能を追加
@@ -37,13 +46,13 @@
 //                  英語対応
 // 1.0.0 2016/01/29 初版
 // ----------------------------------------------------------------------------
-// [Blog]   : http://triacontane.blogspot.jp/
+// [Blog]   : https://triacontane.blogspot.jp/
 // [Twitter]: https://twitter.com/triacontane/
 // [GitHub] : https://github.com/triacontane/
 //=============================================================================
 
 /*:
- * @plugindesc Sound test plugin(Ver.2.1.0) + Comment Window
+ * @plugindesc Sound test plugin(Ver.2.3.0) + Comment Window
  * @author triacontane (modified by NAK)
  *
  * @param CommandName
@@ -52,11 +61,13 @@
  *
  * @param AddCommandTitle
  * @desc Add command at title scene(ON/OFF)
- * @default ON
+ * @default true
+ * @type boolean
  *
  * @param AddCommandMenu
  * @desc Add command at menu scene(ON/OFF)
- * @default ON
+ * @default true
+ * @type boolean
  *
  * @param NameVolume
  * @desc Name volume for Bgm setting window
@@ -76,7 +87,9 @@
  *
  * @param ReadFormat
  * @desc read data format(CSV or JSON)
- * @default CSV
+ * @type select
+ * @option CSV
+ * @option JSON
  *
  * @param ManageNumber
  * @desc 同一サーバ内に複数のゲームを配布する場合のみ、ゲームごとに異なる値を設定してください。(RPGアツマールは対象外)
@@ -84,15 +97,26 @@
  *
  * @param ListControlType
  * @desc リストウィンドウでの操作タイプです。(1, 2)
- * @default 1
+ * @type select
+ * @option 1[OK:演奏＋音量調整][Shift:演奏停止]
+ * @value 1
+ * @option 2[OK:演奏][Shift:音量調整])
+ * @value 2
+ *
+ * @param ShowAudioNameDesc
+ * @desc BGMの説明ウィンドウに曲名を表示します。
+ * @default true
+ * @type boolean
  *
  * @param CommentWindow
  * @desc Change BGM setting window to comment window
- * @default OFF
+ * @default false
+ * @type boolean
  *
  * @param コメントを消す
  * @desc カーソルが他の項目に当たった場合、コメントを消します。
- * @default OFF
+ * @default false
+ * @type boolean
  *
  * @help Add a comment window on sound test screen.
  * make the following item in a CSV file.
@@ -108,6 +132,8 @@
  * aaa,bbb,ccc,hogehoge
  * 
  * ------ The following is original help text of SceneSoundTest.js ------
+ * 
+ *  Add sound test screen.
  *
  * Preparation
  * Make [/data/SoundTest.csv] UFT-8
@@ -146,7 +172,7 @@
  * This plugin is released under the MIT License.
  */
 /*:ja
- * @plugindesc サウンドテストプラグイン(Ver.2.1.0)＋コメントウィンドウ
+ * @plugindesc サウンドテストプラグイン(Ver.2.3.0)＋コメントウィンドウ
  * @author トリアコンタン／改造：22番目の素数(NAK)
  *
  * @param コマンド名称
@@ -156,12 +182,14 @@
  * @param タイトルに追加
  * @desc タイトル画面にサウンドテストを追加します。(ON/OFF)
  * OFFにした場合もコマンドで後から有効にできます。
- * @default ON
+ * @default true
+ * @type boolean
  *
  * @param メニューに追加
  * @desc メニュー画面にサウンドテストを追加します。(ON/OFF)
  * OFFにした場合もコマンドで後から有効にできます。
- * @default ON
+ * @default true
+ * @type boolean
  *
  * @param 音量名称
  * @desc BGMの設定項目「音量」のゲーム内での名称です。
@@ -182,27 +210,45 @@
  * @desc 背景として表示するピクチャ（/img/pictures/）を指定できます。
  * サイズは画面サイズに合わせて拡縮されます。拡張子、パス不要。
  * @default
+ * @require 1
+ * @dir img/pictures/
+ * @type file
  *
  * @param 読込形式
  * @desc データファイルの読み込み形式です。
  * CSV形式およびJSON形式をサポートしています。
- * @default CSV
+ * @default
+ * @type select
+ * @option CSV
+ * @option JSON
  *
  * @param 管理番号
  * @desc 同一サーバ内に複数のゲームを配布する場合のみ、ゲームごとに異なる値を設定してください。(RPGアツマールは対象外)
  * @default
  *
  * @param リスト操作タイプ
- * @desc リストウィンドウでの操作タイプです。(1[OK:演奏＋音量調整][Shift:演奏停止]　2[OK:演奏][Shift:音量調整])
+ * @desc リストウィンドウでの操作タイプです。
  * @default 1
+ * @type select
+ * @option 1[OK:演奏＋音量調整][Shift:演奏停止]
+ * @value 1
+ * @option 2[OK:演奏][Shift:音量調整])
+ * @value 2
+ *
+ * @param 説明文に曲名表示
+ * @desc BGMの説明ウィンドウに曲名を表示します。
+ * @default true
+ * @type boolean
  *
  * @param コメントウィンドウ
  * @desc BGMの設定項目をコメントウィンドウに変えます。
- * @default OFF
+ * @default false
+ * @type boolean
  *
  * @param コメントを消す
  * @desc カーソルが他の項目に当たった場合、コメントを消します。
- * @default OFF
+ * @default false
+ * @type boolean
  *
  * @help サウンドテストにコメント欄を付けます。
  * CSV/JSONに以下の項目を追加してください。
@@ -223,16 +269,10 @@
  * 「コメントを消す」オプションは、試しにやってみたら実装できたけれども
  * どっちが良いのか自分でもよく分からなくなったので
  * とりあえず残してみました。お好みでどうぞ。
- *
- * !!追加説明!!
- * オリジナルのファイルにある「type」の項目は必須ではなく、
- * 設定しないと自動的にbgmと判定されます。
- * またtypeの項目は小文字で入れないとエラーが返ります。
- * （つまりbgm,bgs,me,seと設定すること）
  * 
  * ------↓以下はオリジナルのヘルプテキストです↓------
- *
- * ゲーム中のオーディオを視聴できるサウンドテスト画面を実装します。
+ * 
+ *  ゲーム中のオーディオを視聴できるサウンドテスト画面を実装します。
  * タイトル画面、メニュー画面およびプラグインコマンドから専用画面に遷移します。
  * ゲーム中に一度でも再生したことのあるオーディオを視聴できるようになります。
  *
@@ -246,7 +286,7 @@
  * 項目名      : 説明
  * fileName    : BGMのファイル名です。拡張子不要。
  * displayName : BGMリストに表示される曲名です。
- * description : ヘルプウィンドウに表示される説明です。
+ * description : ヘルプウィンドウに表示される説明です。\nと記述すると改行します。
  * type        : オーディオ種別(bgm or bgs or me or se)
  *
  * なお、別プラグイン「バッチ処理プラグイン」(BatchProcessManager.js)
@@ -330,6 +370,11 @@ function Scene_SoundTest() {
         return value === null ? '' : value;
     };
 
+    var getParamBoolean = function(paramNames) {
+        var value = getParamString(paramNames).toUpperCase();
+        return value === 'TRUE';
+    };
+
     var getParamNumber = function(paramNames, min, max) {
         var value = getParamString(paramNames);
         if (arguments.length < 2) min = -Infinity;
@@ -338,8 +383,8 @@ function Scene_SoundTest() {
     };
 
     var getParamBoolean = function(paramNames) {
-        var value = getParamOther(paramNames);
-        return (value || '').toUpperCase() === 'ON';
+        var value = (getParamOther(paramNames) || '').toUpperCase();
+        return value === 'ON' || value === 'TRUE';
     };
 
     var getParamOther = function(paramNames) {
@@ -364,6 +409,7 @@ function Scene_SoundTest() {
     var paramReadFormat      = getParamString(['読込形式', 'ReadFormat']).toUpperCase();
     var paramManageNumber    = getParamString(['管理番号', 'ManageNumber']);
     var paramListControlType = getParamNumber(['リスト操作タイプ', 'ListControlType'], 1, 2);
+    var paramShowAudioName   = getParamBoolean(['説明文に曲名表示', 'ShowAudioNameDesc']);
 
     //=============================================================================
     // DataManager
@@ -503,23 +549,7 @@ function Scene_SoundTest() {
     var _Game_Interpreter_pluginCommand      = Game_Interpreter.prototype.pluginCommand;
     Game_Interpreter.prototype.pluginCommand = function(command, args) {
         _Game_Interpreter_pluginCommand.apply(this, arguments);
-        try {
-            this.pluginCommandSceneSoundTest(command, args);
-        } catch (e) {
-            if ($gameTemp.isPlaytest() && Utils.isNwjs()) {
-                var window = require('nw.gui').Window.get();
-                if (!window.isDevToolsOpen()) {
-                    var devTool = window.showDevTools();
-                    devTool.moveTo(0, 0);
-                    devTool.resizeTo(Graphics.width, Graphics.height);
-                    window.focus();
-                }
-            }
-            console.error('プラグインコマンドの実行中にエラーが発生しました。');
-            console.log('- コマンド名 　: ' + command);
-            console.log('- コマンド引数 : ' + args);
-            console.log('- エラー原因   : ' + e.toString());
-        }
+        this.pluginCommandSceneSoundTest(command, args);
     };
 
     Game_Interpreter.prototype.pluginCommandSceneSoundTest = function(command) {
@@ -959,7 +989,8 @@ function Scene_SoundTest() {
     };
 
     Window_AudioList.prototype.getDescription = function(item) {
-        return this.isEnabled(item) ? '【' + item.displayName + '】\n' + item.description : '？？？';
+        var name = paramShowAudioName ? '【' + item.displayName + '】\n' : '';
+        return this.isEnabled(item) ? name + item.description.replace('\\n', '\n') : '？？？';
     };
 
     Window_AudioList.prototype.setup = function(audioType) {
@@ -1262,7 +1293,7 @@ function Scene_SoundTest() {
         return {
             container: container,
             player   : player
-        }
+        };
     };
 
     Game_SoundTest.prototype.refresh = function() {
@@ -1276,7 +1307,7 @@ function Scene_SoundTest() {
     };
 
     Game_SoundTest.prototype.getAudioContainer = function(type) {
-        return type ? this.getAudioData(type).container : this._audioSelector.getContainer()
+        return type ? this.getAudioData(type).container : this._audioSelector.getContainer();
     };
 
     Game_SoundTest.prototype.addPlayList = function(audio, type) {
@@ -1296,7 +1327,7 @@ function Scene_SoundTest() {
 
     Game_SoundTest.prototype.getAudioDataList = function(type) {
         return $dataSoundTest.filter(function(data) {
-            return data && ((data.type || SoundTestManager.types[0]) === type);
+            return data && ((data.type || SoundTestManager.types[0]).toLowerCase() === type);
         });
     };
 
@@ -1372,133 +1403,133 @@ function Scene_SoundTest() {
 //  以下がコメントウィンドウの実装に伴う追加のコードです。
 //------------------------------------------------------------------------------
 
-    var UseCommentWindow = getParamBoolean(['CommentWindow', 'コメントウィンドウ']);
-    var ClearCommentWindow = getParamBoolean(['コメントを消す']);
+var UseCommentWindow = getParamBoolean(['CommentWindow', 'コメントウィンドウ']);
+var ClearCommentWindow = getParamBoolean(['コメントを消す']);
 
-    //=============================================================================
-    // Scene_SoundTest
-    // UseCommentWindowによる分岐
-    //=============================================================================
+//=============================================================================
+// Scene_SoundTest
+// UseCommentWindowによる分岐
+//=============================================================================
 
-    Scene_SoundTest.prototype.activateAudioList = function() {
-    	if(!UseCommentWindow){
-            this._audioSettingWindow.deselect();
-            this._audioSettingWindow.deactivate();
-    	}
-        this._audioListWindow.activate();
-    };
-
-    Scene_SoundTest.prototype.onListOk = function() {
-        if (!this._audioListWindow.isCurrentItemEnabled()) return;
-        this.playAudio();
-        if(UseCommentWindow){
-            var item = this._audioListWindow.item();
-            this._audioSettingWindow.drawComments(item.comment);
-            this.activateAudioList();
-        }else{
-            if (paramListControlType === 1) {
-                this.activateAudioSetting();
-            } else {
-                this.activateAudioList();
-            }
-        }
-    };
-
-    var _Scene_SoundTest_createAudioSettingWindow = Scene_SoundTest.prototype.createAudioSettingWindow;
-    Scene_SoundTest.prototype.createAudioSettingWindow = function() {
-        if (UseCommentWindow){
-            this._audioSettingWindow = new Window_BgmComment(this._audioListWindow.width, this._helpWindow.height);
-            this._audioSettingWindow.height = Graphics.boxHeight - (this._helpWindow.y + this._helpWindow.height);
-            this.addWindow(this._audioSettingWindow);
-            if (SoundTestManager.isSettingEmpty()) this._audioSettingWindow.hide();
-        }else{
-            _Scene_SoundTest_createAudioSettingWindow.apply(this, arguments);
-        }
-    };
-
-
-	var _Scene_SoundTest_changeAudioCategory = Scene_SoundTest.prototype.changeAudioCategory;
-    Scene_SoundTest.prototype.changeAudioCategory = function() {
-    	if (UseCommentWindow && ClearCommentWindow) this._audioSettingWindow.clearComments();
-        _Scene_SoundTest_changeAudioCategory.apply(this, arguments);
-    };
-
-	var _Scene_SoundTest_update = Scene_SoundTest.prototype.update;
-	 Scene_SoundTest.prototype.update = function() {
-	    _Scene_SoundTest_update.apply(this, arguments);
-		if (UseCommentWindow && ClearCommentWindow){
-	        if (Input.isTriggered('right')) {
-	            this._audioSettingWindow.clearComments();
-	        }
-	        if (Input.isTriggered ('left')) {
-	            this._audioSettingWindow.clearComments();
-	        }
-	        if (Input.isTriggered ('up')) {
-	            this._audioSettingWindow.clearComments();
-	        }
-	        if (Input.isTriggered ('down')) {
-	            this._audioSettingWindow.clearComments();
-	        }
-		}
-	};
-
-    //=============================================================================
-    // Window_BgmComment
-    //  BGMコメントウィンドウを用語辞典から強引にぶち込んでいくスタイル
-    //=============================================================================
-    function Window_BgmComment() {
-        this.initialize.apply(this, arguments);
+Scene_SoundTest.prototype.activateAudioList = function() {
+    if(!UseCommentWindow){
+        this._audioSettingWindow.deselect();
+        this._audioSettingWindow.deactivate();
     }
+    this._audioListWindow.activate();
+};
 
-    Window_BgmComment.prototype             = Object.create(Window_Base.prototype);
-    Window_BgmComment.prototype.constructor = Window_BgmComment;
+Scene_SoundTest.prototype.onListOk = function() {
+    if (!this._audioListWindow.isCurrentItemEnabled()) return;
+    this.playAudio();
+    if(UseCommentWindow){
+        var item = this._audioListWindow.item();
+        this._audioSettingWindow.drawComments(item.comment);
+        this.activateAudioList();
+    }else{
+        if (paramListControlType === 1) {
+            this.activateAudioSetting();
+        } else {
+            this.activateAudioList();
+        }
+    }
+};
 
-    Window_BgmComment.prototype.initialize = function(x, y) {
-        var width       = (Graphics.boxWidth - 320);
-        var height      = (Graphics.boxHeight - this.fittingHeight(2));
-        Window_Base.prototype.initialize.call(this, x, y, width, height);
-    };
+var _Scene_SoundTest_createAudioSettingWindow = Scene_SoundTest.prototype.createAudioSettingWindow;
+Scene_SoundTest.prototype.createAudioSettingWindow = function() {
+    if (UseCommentWindow){
+        this._audioSettingWindow = new Window_BgmComment(this._audioListWindow.width, this._helpWindow.height);
+        this._audioSettingWindow.height = Graphics.boxHeight - (this._helpWindow.y + this._helpWindow.height);
+        this.addWindow(this._audioSettingWindow);
+        if (SoundTestManager.isSettingEmpty()) this._audioSettingWindow.hide();
+    }else{
+        _Scene_SoundTest_createAudioSettingWindow.apply(this, arguments);
+    }
+};
 
-    //描画本体
-    //テキストの折り返しを実装する
-    Window_BgmComment.prototype.drawComments = function(text) {
-        this.clearComments();
-        //改行コードでスプリットする
-        var ary_text = text.split("\n");
-        var pos_x = 0;
-        var pos_y = 0;
-        //改行コードsplitしたテキスト配列を一行ずつ回す
-        for(var i = 0; i < ary_text.length; i++){
-            var e = ary_text[i];
-            pos_y = this.drawLogSentence(e, pos_x, pos_y);
-            pos_y += this.standardFontSize() + this.textPadding();
+
+var _Scene_SoundTest_changeAudioCategory = Scene_SoundTest.prototype.changeAudioCategory;
+Scene_SoundTest.prototype.changeAudioCategory = function() {
+    if (UseCommentWindow && ClearCommentWindow) this._audioSettingWindow.clearComments();
+    _Scene_SoundTest_changeAudioCategory.apply(this, arguments);
+};
+
+var _Scene_SoundTest_update = Scene_SoundTest.prototype.update;
+ Scene_SoundTest.prototype.update = function() {
+    _Scene_SoundTest_update.apply(this, arguments);
+    if (UseCommentWindow && ClearCommentWindow){
+        if (Input.isTriggered('right')) {
+            this._audioSettingWindow.clearComments();
+        }
+        if (Input.isTriggered ('left')) {
+            this._audioSettingWindow.clearComments();
+        }
+        if (Input.isTriggered ('up')) {
+            this._audioSettingWindow.clearComments();
+        }
+        if (Input.isTriggered ('down')) {
+            this._audioSettingWindow.clearComments();
+        }
+    }
+};
+
+//=============================================================================
+// Window_BgmComment
+//  BGMコメントウィンドウを用語辞典から強引にぶち込んでいくスタイル
+//=============================================================================
+function Window_BgmComment() {
+    this.initialize.apply(this, arguments);
+}
+
+Window_BgmComment.prototype             = Object.create(Window_Base.prototype);
+Window_BgmComment.prototype.constructor = Window_BgmComment;
+
+Window_BgmComment.prototype.initialize = function(x, y) {
+    var width       = (Graphics.boxWidth - 320);
+    var height      = (Graphics.boxHeight - this.fittingHeight(2));
+    Window_Base.prototype.initialize.call(this, x, y, width, height);
+};
+
+//描画本体
+//テキストの折り返しを実装する
+Window_BgmComment.prototype.drawComments = function(text) {
+    this.clearComments();
+    //改行コードでスプリットする
+    var ary_text = text.split("\n");
+    var pos_x = 0;
+    var pos_y = 0;
+    //改行コードsplitしたテキスト配列を一行ずつ回す
+    for(var i = 0; i < ary_text.length; i++){
+        var e = ary_text[i];
+        pos_y = this.drawLogSentence(e, pos_x, pos_y);
+        pos_y += this.standardFontSize() + this.textPadding();
+        pos_x = 0;
+    }
+};
+
+//テキストの削除
+Window_BgmComment.prototype.clearComments = function(text) {
+    this.contents.clear();
+};
+
+
+//折り返しありの描画
+Window_BgmComment.prototype.drawLogSentence = function(text, x, y){
+    var c = text.split("");
+    var pos_x = x;
+    var pos_y = y;
+    for(var i = 0; i < c.length; i++){
+        if (pos_x > this.width - this.standardFontSize() * 2){
             pos_x = 0;
+            pos_y += this.standardFontSize() + this.textPadding();
+            this.drawTextEx(c[i], pos_x, pos_y);
+            pos_x += this.textWidth(c[i]);
+        }else{
+            this.drawTextEx(c[i], pos_x, pos_y);
+            pos_x += this.textWidth(c[i]);
         }
-    };
-
-    //テキストの削除
-    Window_BgmComment.prototype.clearComments = function(text) {
-        this.contents.clear();
-    };
-
-	
-    //折り返しありの描画
-    Window_BgmComment.prototype.drawLogSentence = function(text, x, y){
-        var c = text.split("");
-        var pos_x = x;
-        var pos_y = y;
-        for(var i = 0; i < c.length; i++){
-            if (pos_x > this.width - this.standardFontSize() * 2){
-                pos_x = 0;
-                pos_y += this.standardFontSize() + this.textPadding();
-                this.drawTextEx(c[i], pos_x, pos_y);
-                pos_x += this.textWidth(c[i]);
-            }else{
-                this.drawTextEx(c[i], pos_x, pos_y);
-                pos_x += this.textWidth(c[i]);
-            }
-        }
-        return pos_y;
-    };
+    }
+    return pos_y;
+};
 
 })();
