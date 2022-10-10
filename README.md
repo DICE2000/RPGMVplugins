@@ -9,8 +9,5 @@ YEPとあるのは[Yanfly Engine Plugins](http://www.yanfly.moe/wiki/Category:Ya
 YEPシリーズの下に置くことで、バグの修正や仕様の変更、機能の追加を行います  
 現在では有償公開のプラグインに関するものも含まれます
 
-## プラグイン解説
-
-一部は下記に置いてあります
-
-https://nak.hits.jp/documents/rpgmaker.html
+GitHubにMITライセンスで置いている以上何をどうしようと自由です
+ご要望にはお応えしませんので各自でどうにかしてください
