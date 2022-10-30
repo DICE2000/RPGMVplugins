@@ -1,6 +1,6 @@
 //=============================================================================
 // SceneGlossary_onTitle_v2.js
-// SceneGlossary.js(2.15.0)の改造版 (modified by NAK)
+// SceneGlossary.js(2.23.1)の改造版 (modified by NAK)
 // ----------------------------------------------------------------------------
 //
 // タイトル画面に全項目が読める用語辞典＋BGM再生機能
@@ -29,6 +29,8 @@
 //　行われるようになります。 
 //
 // 変更履歴
+// 22/10/31
+// Ver.2.23.1に合わせた。
 // 20/2/4
 // Ver.2.15.0に合わせた。
 // 18/11/29
@@ -47,52 +49,18 @@
 // 修正予定：Scene_MapなどでBGM再生機能を使ってしまうとBGMの復帰が行われない
 // 
 // ----------------------------------------------------------------------------
-// 22番目の素数(NAK)
-// [Blog]   : http://dice2000.tumblr.com/
 // [GitHub] : https://github.com/DICE2000
 //=============================================================================
 // 
-// 以下はSceneGlossaryの履歴です（省略あり）。
-//
+//=============================================================================
+// SceneGlossary.js
+// ----------------------------------------------------------------------------
+// (C)2016 Triacontane
+// This software is released under the MIT License.
+// http://opensource.org/licenses/mit-license.php
+// ----------------------------------------------------------------------------
 // Version
-// 2.15.0 2019/12/05 ウィンドウの枠と背景を非表示にできる機能を追加
-// 2.14.3 2019/12/05 2.4.0以降、用語の自動登録時にONになるスイッチおよび変数が機能していなかった問題を修正
-// 2.14.2 2019/12/04 プラグインコマンド「GLOSSARY_ITEM_CHANGE_CATEGORY」のヘルプの凡例が間違っていたので修正
-// 2.14.1 2019/11/04 2.14.0の修正で、リストの一番上のカテゴリを指定して辞書を開くと正常に表示されない問題を修正
-// 2.14.0 2019/11/03 コマンドから用語辞典を開くときに、カテゴリおよびリスト番号を指定して開ける機能を追加
-// 2.13.2 2019/09/08 2.13.1の修正に加えて収集率の表示を正常化
-// 2.13.1 2018/09/08 YEP_ItemCore.jsとの競合を解消
-// 2.13.0 2019/06/08 全ての用語アイテムを破棄するプラグインコマンドを追加
-// 2.12.0 2019/04/07 用語ページの出現条件をスイッチで制御できる機能を追加
-// 2.11.3 2019/02/07 FacePicture.jsとの競合を解消
-// 2.11.2 2019/01/04 2.11.0の対応でピクチャの拡大率が機能しなくなっていた問題を修正
-// 2.11.1 2018/12/07 収集率を取得できるスクリプトをヘルプに記載
-// 2.11.0 2018/11/24 カテゴリ選択中でも収集率が表示されるよう修正
-//                   一部の処理を軽量化
-// 2.10.0 2018/09/13 説明文に対象アイテムデータの説明や価格を埋め込める制御文字を追加
-// 2.9.2 2018/09/02 ピクチャを指定していると敵キャラデータの取得が行われない問題を修正
-// 2.9.1 2018/08/31 敵キャラのパラメータ出力機能を使う際、敵キャラの画像を表示したページでないとパラメータ表示できない問題を修正
-// 2.9.0 2018/08/12 スイッチにより特定の用語の文字色を変更できる機能を追加
-// 2.8.1 2018/07/11 文章の最後の自動改行位置が正しく判定されないケースがある問題を修正
-// 2.8.0 2018/06/14 収集率算出の対象から外せる用語を指定できる機能を追加
-// 2.7.0 2018/04/30 ひとつの用語に対して複数の画像を表示できる機能を追加
-// 2.6.2 2018/04/19 ヘルプの一部を英語化
-// 2.6.1 2018/04/07 用語選択からカテゴリ選択に戻ったときに、最後に選択していた用語の情報が残ってしまう問題を修正
-// 2.6.0 2018/03/17 テキストのY座標を数値指定できる機能を追加
-// 2.5.0 2018/03/11 画像の表示位置と表示優先度のパラメータを分けました。
-//                  モンスターの報酬情報を記入できる制御文字を追加
-// 2.4.0 2018/03/11 モンスター辞典を作成するための各種支援機能を追加しました。
-// 2.3.2 2018/03/03 画面起動時のパフォーマンスを改善
-//                  コモンイベントを実行するアイテムの使用時に内容次第でエラーになっていた問題を修正
-// 2.3.1 2018/02/24 用語情報を設定していない場合のエラーメッセージを言語別に表示するよう修正。ヘルプを分かりやすく修正。
-// 2.3.0 2018/02/17 未入手の用語を？？？等で表記できる機能を追加
-// 2.2.1 2018/01/20 setMaxItem.jsとの競合を解消。他のプラグインから用語辞典ウィンドウを改変できるように定義をグローバル領域に移動
-// 2.2.0 2018/01/14 複数のカテゴリに属する用語を作成できる機能を追加
-// 2.1.0 2017/12/12 入手履歴使用有無と用語リストウィンドウの横幅を、辞書ごとに別々に設定できるようになりました。
-// 2.0.1 2017/12/10 2.0.0においてYEP_MainMenuManager.jsとの連携時、ヘルプに示している登録内容で実行するとエラーになっていた問題を修正
-// 2.0.0 2017/12/09 用語辞典を好きなだけ追加し、各辞典ごとに仕様や表示内容をカスタマイズできる機能を追加
-//                  用語カテゴリを変更できるコマンドを追加、アイテムごとに使用可否を設定できる機能を追加
-//                  アイテム使用時に使用したアイテムIDを変数に格納する機能と、任意のスイッチを変更できる機能を追加
+// 2.23.1 2021/12/19 部分一致で自動登録されない問題を修正
 // （中略）
 // 1.0.0 2016/04/17 初版
 // ----------------------------------------------------------------------------
@@ -222,6 +190,11 @@
  * @desc ここで指定したカテゴリは「アイテム使用」が有効でも使用できなくなります。
  * @default
  * @type string[]
+ *
+ * @param ShowPageNumber
+ * @desc 複数ページの用語の場合、用語辞典の下部にページ番号を表示します。
+ * @default true
+ * @type boolean
  *
  * @noteParam SGピクチャ
  * @noteRequire 1
@@ -399,6 +372,18 @@
  * @param ConfirmNoUse
  * @desc 確認メッセージで使わない場合のメッセージです。
  * @default やめる
+ * @parent ConfirmMessage
+ *
+ * @param ConfirmX
+ * @desc 確認メッセージの表示X座標補正値です。
+ * @default 0
+ * @type number
+ * @parent ConfirmMessage
+ *
+ * @param ConfirmY
+ * @desc 確認メッセージの表示Y座標補正値です。
+ * @default 0
+ * @type number
  * @parent ConfirmMessage
  *
  * @param GlossaryHelp
@@ -600,6 +585,12 @@
  * @default
  * @type string[]
  *
+ * @param ShowPageNumber
+ * @text ページ番号表示
+ * @desc 複数ページの用語の場合、用語辞典の下部にページ番号を表示します。
+ * @default true
+ * @type boolean
+ *
  * @noteParam SGピクチャ
  * @noteRequire 1
  * @noteDir img/pictures/
@@ -622,9 +613,6 @@
  * 2. パラメータの「用語情報」を設定してください。（項目をダブルクリック）
  * 当該パラメータを設定せずにプラグインコマンドから用語辞典を起動すると
  * エラーになるので注意してください。
- *
- * ※バージョン2.0.0よりパラメータの構成が変わりました。
- * 以前のバージョンを使っていた場合はパラメータを再設定する必要があります。
  *
  * 用語は対象アイテムを取得することで閲覧可能になるほか、文章の表示の命令中で
  * 同一単語が出現した場合に自動的に登録する機能もあります。
@@ -649,11 +637,14 @@
  * 3.「メモ欄」に以下の通り記述(不要な項目は省略可能)
  * <SG説明:説明文>           // 用語の説明文(※1)
  * <SG共通説明:説明文>       // 用語の共通説明文(使い回し用)
+ * <SG未入手説明:説明文>      // 未入手用語の説明文
  * <SGカテゴリ:カテゴリ名>   // 用語の属するカテゴリの名称
  * <SG手動>                  // 用語を自動登録の対象から除外する
  * <SGピクチャ:ファイル名>   // 用語のピクチャのファイル名
  * <SG敵キャラ:敵キャラID>   // ピクチャの代わりに敵キャラの画像を表示(※2)
  * <SGピクチャ位置:text>     // ピクチャの表示位置
+ * <SGピクチャX:100>        // 用語のピクチャのX座標補正
+ * <SGピクチャY:100>        // 用語のピクチャのY座標補正
  * <SGテキスト位置:100>      // テキストの表示位置
  *  top:ウィンドウの先頭 bottom:ウィンドウの下部 text:テキストの末尾
  * <SGピクチャ優先度:top>    // ピクチャの表示プライオリティ
@@ -677,11 +668,21 @@
  * \exp[3]     // 対象敵キャラの獲得経験値(3桁でゼロ埋め)
  * \money[3]   // 対象敵キャラの獲得ゴールド(3桁でゼロ埋め)
  * \drop[1]    // 対象敵キャラの[1]番目のドロップアイテム
+ *
+ * ※2 敵キャラIDを省略すると用語アイテムと同名の敵キャラ自動で設定されます。
+ *
  * \DATA[prop] // 対象データのプロパティ「prop」に置き換えられます。(下記参照)
  * \DATA[description] // 対象データの説明
  * \DATA[price]       // 対象データの価格
+ * \EFFECT_TYPE[0] // 対象データの[0]番目の使用効果の種別
+ * \SCRIPT{aaa}  // スクリプト[aaa]を評価した結果。
+ *               // ローカル変数[data]で対象データを参照できます。
  *
- * ※2 敵キャラIDを省略すると用語アイテムと同名の敵キャラ自動で設定されます。
+ * ・使用例1(0番目の使用効果の効果量(%))
+ * \SCRIPT{data.effects[0].value1 * 100 + '%'}
+ *
+ * ・使用例2(0番目の使用効果の効果量)
+ * \SCRIPT{data.effects[0].value2}
  *
  * さらに、一つの用語で複数のページを使用することができます。
  * ページは方向キーの左右で切り替えます。
@@ -733,6 +734,17 @@
  *
  * さらに追加で表示させたい場合は以下のように記述してください。
  * <SG追加2ピクチャ:bbb,2,3>
+ *
+ * ・追加機能5
+ * 用語辞典にページ番号を付与できます。パラメータから設定を有効にしてください。
+ * 用語単位でページ番号を表示させたくない場合は、以下のメモ欄で対応できます。
+ * <SGページ番号不要>
+ * <SGNoPageNum>
+ *
+ * ・追加機能6
+ * 用語ページを開いたときに任意のスイッチをONにできます。
+ * <SG用語閲覧スイッチ:1>
+ * <SGViewingSwitch:1>
  *
  * プラグインコマンド詳細
  *  イベントコマンド「プラグインコマンド」から実行。
@@ -863,26 +875,40 @@
  * @default やめる
  * @parent ConfirmMessage
  *
+ * @param ConfirmX
+ * @text 確認ウィンドウX座標
+ * @desc 確認メッセージの表示X座標です。
+ * @default 0
+ * @type number
+ * @parent ConfirmMessage
+ *
+ * @param ConfirmY
+ * @text 確認ウィンドウY座標
+ * @desc 確認メッセージの表示Y座標です。
+ * @default 0
+ * @type number
+ * @parent ConfirmMessage
+ *
  * @param GlossaryHelp
  * @text 用語ヘルプ
- * @desc 用語リスト選択時のヘルプ画面に表示するテキストです。未指定の場合、ヘルプウィンドウは非表示になります。
+ * @desc 用語リスト選択時のヘルプ画面に表示するテキストです。未指定の場合、ヘルプウィンドウは非表示になります。(改行コード:\n)
  * @default ゲーム中に登場する用語を解説しています。
  *
  * @param CategoryHelp
  * @text カテゴリヘルプ
- * @desc 用語カテゴリ選択時のヘルプ画面に表示するテキストです。
+ * @desc 用語カテゴリ選択時のヘルプ画面に表示するテキストです。(改行コード:\n)
  * @default カテゴリを選択してください。
  * @parent GlossaryHelp
  *
  * @param ConfirmHelp
  * @text 確認ヘルプ
- * @desc 用語アイテムの選択確認時に表示するテキストです。指定しなかった場合、何も表示されません。
+ * @desc 用語アイテムの選択確認時に表示するテキストです。指定しなかった場合、何も表示されません。(改行コード:\n)
  * @default
  * @parent GlossaryHelp
  *
  * @param UsingHelp
  * @text 使用後ヘルプ
- * @desc 用語アイテムの使用後に表示するテキストです。指定しなかった場合、何も表示されません。
+ * @desc 用語アイテムの使用後に表示するテキストです。指定しなかった場合、何も表示されません。(改行コード:\n)
  * @default
  * @parent GlossaryHelp
  *
@@ -926,6 +952,12 @@
  * @text 未入手アイテムの表示
  * @desc 未入手アイテムを指定した名前（？？？等）で表示します。指定しない場合この機能は無効になります。
  * @default
+ *
+ * @param HideIcon
+ * @text アイコン非表示
+ * @desc 用語アイテムのデータベース上の設定にかかわらず、アイコンを非表示にします。
+ * @default false
+ * @type boolean
  */
 
 /**
@@ -1139,6 +1171,24 @@ function Window_GlossaryComplete() {
     };
 
     //=============================================================================
+    // Game_Message
+    //  戦闘開始時メッセージフラグを追加定義します。
+    //=============================================================================
+    var _Game_Message_clear      = Game_Message.prototype.clear;
+    Game_Message.prototype.clear = function() {
+      _Game_Message_clear.call(this, arguments);
+      this._isStartBattleMessage = false;
+    };
+
+    Game_Message.prototype.startBattleMessage = function() {
+      this._isStartBattleMessage = true;
+    };
+
+    Game_Message.prototype.isStartBattleMessage = function() {
+      return this._isStartBattleMessage;
+    };
+
+    //=============================================================================
     // Game_System
     //  ロード完了時に履歴情報フィールドを必要に応じて初期化します。
     //=============================================================================
@@ -1271,9 +1321,15 @@ function Window_GlossaryComplete() {
         return orderA - orderB;
     };
 
-    Game_Party.prototype.gainGlossaryFromText = function(text) {
+    Game_Party.prototype.gainGlossaryFromText = function(text, likeFlag) {
         this.getAllHiddenGlossaryList().forEach(function(item) {
-            if (!this.hasItem(item) && this.isAutoGlossaryWord(item) && text.contains(item.name)) {
+            if (!this.hasItem(item) && this.isAutoGlossaryWord(item)) {
+                if (likeFlag && !text.contains(item.name)) {
+                    return;
+                }
+                if (!likeFlag && text !== item.name) {
+                    return;
+                }
                 this.setAutoAdditionTrigger(item);
                 this.gainGlossary(item);
             }
@@ -1380,7 +1436,7 @@ function Window_GlossaryComplete() {
     };
 
     Game_Party.prototype.setGlossaryCategoryIndexByName = function(name) {
-        var list = this.getAllGlossaryCategory();
+        var list  = this.getAllGlossaryCategory();
         var index = list.indexOf(name);
         if (index >= 0) {
             this.setGlossaryCategoryIndex(index);
@@ -1471,6 +1527,13 @@ function Window_GlossaryComplete() {
         return [this._glossarySetting.ConfirmUse, this._glossarySetting.ConfirmNoUse];
     };
 
+    Game_Party.prototype.getGlossaryConfirmPosition = function() {
+        return {
+            x: this._glossarySetting.ConfirmX || 0,
+            y: this._glossarySetting.ConfirmY || 0,
+        };
+    };
+
     Game_Party.prototype.getGlossaryHelpMessages = function() {
         var setting = this._glossarySetting;
         return [setting.GlossaryHelp, setting.CategoryHelp, setting.ConfirmHelp, setting.UsingHelp];
@@ -1519,22 +1582,32 @@ function Window_GlossaryComplete() {
         return this._glossarySetting.GlossaryListWidth || 160;
     };
 
+    Game_Party.prototype.isHideGlossaryIcon = function() {
+        return this._glossarySetting.HideIcon;
+    };
+
     //=============================================================================
     // Game_Troop
     //  敵キャラの名前を自動登録します。
     //=============================================================================
-    var _Game_Troop_setup      = Game_Troop.prototype.setup;
-    Game_Troop.prototype.setup = function(troopId) {
-        _Game_Troop_setup.apply(this, arguments);
+    Game_Troop.prototype.addEnemyGlossary = function() {
+        this.deadMembers().forEach(function(enemy) {
+            $gameParty.gainGlossaryFromText(enemy.originalName(), false);
+        });
+    };
+
+    var _BattleManager_makeRewards = BattleManager.makeRewards;
+    BattleManager.makeRewards = function() {
+        _BattleManager_makeRewards.apply(this, arguments);
         if (param.AutoAdditionEnemy) {
-            this.addEnemyGlossary();
+            $gameTroop.addEnemyGlossary();
         }
     };
 
-    Game_Troop.prototype.addEnemyGlossary = function() {
-        this.members().forEach(function(enemy) {
-            $gameParty.gainGlossaryFromText(enemy.originalName());
-        });
+    var _BattleManager_displayStartMessages = BattleManager.displayStartMessages;
+    BattleManager.displayStartMessages = function() {
+      $gameMessage.startBattleMessage();
+      _BattleManager_displayStartMessages.apply(this, arguments);
     };
 
     //=============================================================================
@@ -1614,7 +1687,7 @@ function Window_GlossaryComplete() {
     var _Window_Message_startMessage      = Window_Message.prototype.startMessage;
     Window_Message.prototype.startMessage = function() {
         _Window_Message_startMessage.apply(this, arguments);
-        if (param.AutoAddition) $gameParty.gainGlossaryFromText(this.convertEscapeCharacters(this._textState.text));
+        if (param.AutoAddition) $gameParty.gainGlossaryFromText(this.convertEscapeCharacters(this._textState.text), !$gameMessage.isStartBattleMessage());
     };
 
     //=============================================================================
@@ -1624,7 +1697,7 @@ function Window_GlossaryComplete() {
     var _Window_ScrollText_startMessage      = Window_ScrollText.prototype.startMessage;
     Window_ScrollText.prototype.startMessage = function() {
         _Window_ScrollText_startMessage.apply(this, arguments);
-        if (param.AutoAddition) $gameParty.gainGlossaryFromText(this.convertEscapeCharacters(this._text));
+        if (param.AutoAddition) $gameParty.gainGlossaryFromText(this.convertEscapeCharacters(this._text), true);
     };
 
     //=============================================================================
@@ -1714,10 +1787,10 @@ function Window_GlossaryComplete() {
         if (this._helpTexts[0]) {
             if (typeof TranslationManager !== 'undefined') {
                 TranslationManager.getTranslatePromise(helpText).then(function(translatedText) {
-                    this._helpWindow.setText(translatedText);
+                    this._helpWindow.setText(translatedText.replace(/\\n/g, '\n'));
                 }.bind(this));
             } else {
-                this._helpWindow.setText(helpText);
+                this._helpWindow.setText(helpText.replace(/\\n/g, '\n'));
             }
         } else {
             this._helpWindow.visible = false;
@@ -1853,7 +1926,7 @@ function Window_GlossaryComplete() {
     Window_Base.prototype.setFramelessDesign = function() {
         if (param.FramelessDesign) {
             this.backOpacity = 0;
-            this.opacity = 0;
+            this.opacity     = 0;
         }
     };
 
@@ -1974,16 +2047,27 @@ function Window_GlossaryComplete() {
     };
 
     Window_GlossaryList.prototype.drawItemName = function(item, x, y, width) {
-        if (item) {
-            var iconBoxWidth = item.iconIndex > 0 ? Window_Base._iconWidth + 4 : 0;
-            this.drawIcon(item.iconIndex, x + 2, y + 2);
-            this.setGlossaryColor(item);
-            var notYetName = $gameParty.getTextItemNotYet();
-            var name       = $gameParty.hasGlossary(item) ? item.name : notYetName;
-            this.drawTextExIfNeed(name, x + iconBoxWidth, y, width - iconBoxWidth);
-            this.changePaintOpacity(1);
-            this.resetTextColor();
+        if (!item) {
+            return;
         }
+        var iconBoxWidth = this.isShowIcon(item) ? Window_Base._iconWidth + 4 : 0;
+        var name;
+        if ($gameParty.hasGlossary(item)) {
+            if (iconBoxWidth > 0) {
+                this.drawIcon(item.iconIndex, x + 2, y + 2);
+            }
+            name = item.name;
+        } else {
+            name = $gameParty.getTextItemNotYet();
+        }
+        this.setGlossaryColor(item);
+        this.drawTextExIfNeed(name, x + iconBoxWidth, y, width - iconBoxWidth);
+        this.changePaintOpacity(1);
+        this.resetTextColor();
+    };
+
+    Window_GlossaryList.prototype.isShowIcon = function(item) {
+        return item.iconIndex > 0 && !$gameParty.isHideGlossaryIcon();
     };
 
     Window_GlossaryList.prototype.setGlossaryColor = function(item) {
@@ -2041,7 +2125,7 @@ function Window_GlossaryComplete() {
         }
         Window_ItemList.prototype.select.apply(this, arguments);
         if (this.item() && prevItem !== this.item()) {
-            this._glossaryWindow.refresh(this.item());
+            this._glossaryWindow.refreshPage(this.item(), this.index());
         } else if (!this.item()) {
             this._glossaryWindow.clearItem();
         }
@@ -2066,7 +2150,7 @@ function Window_GlossaryComplete() {
         this._data = this.getItemList().filter(function(item) {
             var isInclude = this.includes(item);
             if (isInclude) {
-                item.sortOrder = getMetaValues(item, ['Order', '表示順']) || item.id;
+                item.sortOrder = getArgNumber(getMetaValues(item, ['Order', '表示順'])) || item.id;
             }
             return isInclude;
         }, this).sort(this.compareOrder);
@@ -2130,6 +2214,13 @@ function Window_GlossaryComplete() {
             line -= 3;
         }
         this.y = this._listWindow.y + line * this._listWindow.itemHeight() + 32;
+        var pos = $gameParty.getGlossaryConfirmPosition();
+        if (pos.x !== 0) {
+            this.x = pos.x;
+        }
+        if (pos.y !== 0) {
+            this.y = pos.y;
+        }
     };
 
     Window_GlossaryConfirm.prototype.makeCommandList = function() {
@@ -2222,19 +2313,42 @@ function Window_GlossaryComplete() {
         if (!description) {
             return '';
         }
-        description    = description.replace(/\x1bDATA\[(\w+)]/gi, function() {
-            return this._itemData[arguments[1]];
+        var data       = this._itemData;
+        description    = description.replace(/\x1bEFFECT_TYPE\[(\d+)]/gi, function() {
+            var code = data.effects[parseInt(arguments[1])].code;
+            return Window_Glossary.effectCodeDesc[code];
         }.bind(this));
-        var prevData   = this._itemData;
+        description    = description.replace(/\x1bDATA\[(\w+)]/gi, function() {
+            return data[arguments[1]];
+        }.bind(this));
+        description    = description.replace(/\x1bSCRIPT{(.+)}/gi, function() {
+            return eval(arguments[1]);
+        }.bind(this));
         description    = description.replace(/\x1bCOMMON\[(\d+)]/gi, function() {
             this._itemData = $dataItems[parseInt(arguments[1])];
             return this.getCommonDescription();
         }.bind(this));
-        this._itemData = prevData;
+        this._itemData = data;
         if (this._enemy) {
             description = this.convertEnemyData(description);
         }
         return description;
+    };
+
+    Window_Glossary.effectCodeDesc = {
+        11: 'HP回復',
+        12: 'MP回復',
+        13: 'TP回復',
+        21: 'ステート付与',
+        22: 'ステート解除',
+        31: '強化',
+        32: '弱体',
+        33: '強化の解除',
+        34: '弱体の解除',
+        41: '特殊効果',
+        42: '成長',
+        43: 'スキル習得',
+        44: 'コモンイベント'
     };
 
     Window_Glossary.prototype.isViewablePage = function(index) {
@@ -2254,11 +2368,20 @@ function Window_GlossaryComplete() {
         return contents && contents !== '0' ? contents : null;
     };
 
-    Window_Glossary.prototype.refresh = function(item) {
-        this._itemData = item;
-        this._enemy    = null;
-        this._maxPages = item && $gameParty.hasGlossary(item) ? this.calcMaxPages(0) : 1;
+    Window_Glossary.prototype.refreshPage = function(item, index) {
+        this._listIndex = index;
+        this._itemData  = item;
+        this._enemy     = null;
+        this._maxPages  = item && $gameParty.hasGlossary(item) ? this.calcMaxPages(0) : 1;
         this.drawItem(0, true);
+        this.applyViewingSwitch();
+    };
+
+    Window_Glossary.prototype.applyViewingSwitch = function() {
+        var metaValue = this.getMetaContents(['用語閲覧スイッチ', 'ViewingSwitch'], 0);
+        if (metaValue) {
+            $gameSwitches.setValue(parseInt(metaValue), true);
+        }
     };
 
     Window_Glossary.prototype.cursorRight = function(wrap) {
@@ -2287,24 +2410,38 @@ function Window_GlossaryComplete() {
         return this._pageIndex < this._maxPages - 1;
     };
 
-    Window_Glossary.prototype.drawItem = function(index, noSound) {
+    Window_Glossary.prototype.drawItem = function(pageIndex, noSound) {
         this.contents.clear();
-        this._pageIndex = index;
+        this._pageIndex = pageIndex;
         this.updateArrows();
-        if (!this._itemData || !$gameParty.hasGlossary(this._itemData)) {
+        if (!this._itemData) {
             return;
         }
-        var bitmap = this.getGlossaryBitmap(index);
+        if (!$gameParty.hasGlossary(this._itemData)) {
+            this.drawNoItemText();
+            return;
+        }
+        var bitmap    = this.getGlossaryBitmap(pageIndex);
+        var listIndex = this._listIndex;
         if (bitmap) {
-            bitmap.addLoadListener(this.drawItemSub.bind(this, bitmap));
+            bitmap.addLoadListener(this.drawItemSub.bind(this, bitmap, listIndex, pageIndex));
         } else {
-            this.drawItemSub(null);
+            this.drawItemSub(null, listIndex, pageIndex);
         }
         if (!noSound) SoundManager.playCursor();
     };
 
+    Window_Glossary.prototype.drawNoItemText = function() {
+        var text = this.getMetaContents(['未入手説明', 'NoItemText']);
+        if (text) {
+            this.drawItemText(text, 0);
+        }
+    };
+
     Window_Glossary.prototype.clearItem = function() {
+        this._listIndex = -1;
         this.contents.clear();
+        this.hiddenArrows();
     };
 
     Window_Glossary.prototype.getGlossaryBitmap = function(index) {
@@ -2327,7 +2464,16 @@ function Window_GlossaryComplete() {
         this.upArrowVisible   = this.canMoveRight();
     };
 
-    Window_Glossary.prototype.drawItemSub = function(bitmap) {
+    Window_Glossary.prototype.hiddenArrows = function() {
+        this.downArrowVisible = false;
+        this.upArrowVisible   = false;
+    };
+
+    Window_Glossary.prototype.drawItemSub = function(bitmap, listIndex, pageIndex) {
+        // for async draw
+        if (this._listIndex !== listIndex || this._pageIndex !== pageIndex) {
+            return;
+        }
         var text    = this.getDescription(this._pageIndex);
         var textPos = this.getTextPosition();
         var textHandler;
@@ -2361,6 +2507,23 @@ function Window_GlossaryComplete() {
             pictureHandler();
         }
         this.drawPlusPictures();
+        this.drawPageNumber();
+    };
+
+    Window_Glossary.prototype.drawPageNumber= function() {
+        if (!this.isNeedPageNumber()) {
+            return;
+        }
+        var frame = this.padding * 2;
+        this.drawText(this.getPageNumberText(), 0, this.height - frame - 30, this.width - frame, 'center');
+    };
+
+    Window_Glossary.prototype.getPageNumberText= function() {
+        return (this._pageIndex + 1) + '/' + this._maxPages;
+    };
+
+    Window_Glossary.prototype.isNeedPageNumber= function() {
+        return param.ShowPageNumber && this._maxPages > 1 && !this.getMetaContents(['NoPageNum', 'ページ番号不要'])
     };
 
     Window_Glossary.prototype.drawPlusPictures = function() {
@@ -2489,8 +2652,20 @@ function Window_GlossaryComplete() {
                 x = this.contentsWidth() - dw;
                 break;
         }
+        x += this.getPictureAdjustX(item);
+        y += this.getPictureAdjustY(item);
         this.contents.blt(bitmap, 0, 0, bitmap.width, bitmap.height, x, y, dw, dy);
         this.drawPlusPicture();
+    };
+
+    Window_Glossary.prototype.getPictureAdjustX = function(item) {
+        var metaValue = getMetaValues(item, ['ピクチャX', 'PictureX'], this._pageIndex);
+        return metaValue ? getArgNumber(metaValue) : 0;
+    };
+
+    Window_Glossary.prototype.getPictureAdjustY = function(item) {
+        var metaValue = getMetaValues(item, ['ピクチャY', 'PictureY'], this._pageIndex);
+        return metaValue ? getArgNumber(metaValue) : 0;
     };
 
     Window_Glossary.prototype.getPictureScale = function(item, bitmap, text) {
@@ -2512,12 +2687,14 @@ function Window_GlossaryComplete() {
     };
 
     Window_Glossary.prototype.processTouch = function() {
-        if (!TouchInput.isTriggered()) return;
+        if (this._listIndex < 0 || !TouchInput.isTriggered()) {
+            return;
+        }
         var x = this.canvasToLocalX(TouchInput.x);
         var y = this.canvasToLocalY(TouchInput.y);
         if (y >= 0 && y <= this.height) {
-            if (x >= 0 && x < this.width / 2) this.cursorLeft(false);
-            if (x >= this.width / 2 && x < this.width) this.cursorRight(false);
+            if (x >= 0 && x < this.width / 2) this.cursorLeft(true);
+            if (x >= this.width / 2 && x < this.width) this.cursorRight(true);
         }
     };
 
@@ -2677,3 +2854,4 @@ function Window_GlossaryComplete() {
     };
 
 })();
+
