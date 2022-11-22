@@ -15,6 +15,13 @@
  * YanflyのBattleStatusWindowの顔グラフィックを
  * 戦闘の状況に応じて変化させます。
  * 
+ * @param MP_show
+ * @text MPの表示
+ * @type boolean
+ * @on ON
+ * @off OFF
+ * @default true
+ * 
  * @param alive
  * @type number
  * @text 生存
@@ -77,6 +84,7 @@
 var Imported = Imported || {};
 var Yanfly = Yanfly || {};
 
+var paramMPShow = Boolean((PluginManager.parameters('dice2000_YEP_BattleStatusWindowEx')['MP_show']) === 'true');
 var paramfaceIndexAlive = Number((PluginManager.parameters('dice2000_YEP_BattleStatusWindowEx')['alive']));
 var paramfaceIndexDead = Number((PluginManager.parameters('dice2000_YEP_BattleStatusWindowEx')['dead']));
 var paramfaceIndexPinch = Number((PluginManager.parameters('dice2000_YEP_BattleStatusWindowEx')['pinch']));
@@ -366,12 +374,19 @@ if (Yanfly.BSW.version) {
         var wymod = (Imported.YEP_CoreEngine) ? Yanfly.Param.GaugeHeight : 6;
         var wymod = Math.max(16, wymod);
         this.drawActorHp(actor, rect.x, 0, rect.width);
+        console.log(paramMPShow);
         if (this.getGaugesDrawn(actor) <= 2) {
-            this.drawActorMp(actor, rect.x, wymod, rect.width);
+        	if(paramMPShow){
+	            this.drawActorMp(actor, rect.x, wymod, rect.width);
+        	}
         } else {
-            var ww = rect.width / 2;
-            this.drawActorMp(actor, rect.x, wymod, ww);
-            this.drawActorTp(actor, rect.x + ww, wymod, ww);
+        	if(paramMPShow){
+	            var ww = rect.width / 2;
+	            this.drawActorMp(actor, rect.x, wymod, ww);
+	            this.drawActorTp(actor, rect.x + ww, wymod, ww);
+            }else{
+            	this.drawActorTp(actor, rect.x, wymod, rect.width);
+        	}
         }
         this._enableYBuffer = false;
     };
