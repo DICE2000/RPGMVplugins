@@ -26,7 +26,7 @@
  * 
  * @param Wait Enemy Attack
  * @text 敵攻撃にウェイトを取る
- * @desc フロントビュー時、敵の攻撃開始の効果音が聞こえるようウェイトを取ります。
+ * @desc フロントビュー時、敵の攻撃開始の効果音が聞こえるようウェイトを取ります。(YEP_CoreEngineのFlash TargetをOFFにすること)
  * @type boolean
  * @on ON
  * @off OFF
