@@ -24,6 +24,18 @@
  * @default true
  * @type boolean
  * 
+ * @param Show MP
+ * @text MPの表示
+ * @desc MPを表示します。
+ * @default true
+ * @type boolean
+ *
+ * @param Show TP
+ * @text TPの表示
+ * @desc TPを表示します。
+ * @default true
+ * @type boolean
+ * 
  * @param Show luk
  * @text 運の表示
  * @desc 運の値を表示します。
@@ -86,6 +98,8 @@ var Yanfly = Yanfly || {};
 var parameters = PluginManager.parameters('dice2000_YEP_X_InBattleStatusFanPatch');
 var paramShowBSHelpWindow = (parameters['show BS help window']  === 'true');
 var paramSelectKeyUpDownInBattleStatus = (parameters['Select Key UpDown']  === 'true');
+var paramShowMpInBattleStatus = (parameters['Show MP']  === 'true');
+var paramShowTpInBattleStatus = (parameters['Show TP']  === 'true');
 var paramShowLukInBattleStatus = (parameters['Show luk']  === 'true');
 var paramShowHitInBattleStatus = (parameters['Show hit rate']  === 'true');
 var paramShowEvaInBattleStatus = (parameters['Show eva rate']  === 'true');
@@ -141,7 +155,26 @@ if (Imported.YEP_X_InBattleStatus) {
             Window_InBattleStateList_setBattler.apply(this, arguments);
           }
         };
-    
+
+		//これはCoreEngineのdrawSimpleStatus
+		Window_InBattleStatus.prototype.drawActorSimpleStatus = function(actor, x, y, width) {
+		    var lineHeight = this.lineHeight();
+		    var xpad = Window_Base._faceWidth + (2 * Yanfly.Param.TextPadding);
+		    var x2 = x + xpad;
+		    var width2 = Math.max(180, width - xpad - this.textPadding());
+		    this.drawActorName(actor, x, y);
+		    this.drawActorLevel(actor, x, y + lineHeight * 1);
+		    this.drawActorIcons(actor, x, y + lineHeight * 2);
+		    this.drawActorClass(actor, x2, y, width2);
+		    this.drawActorHp(actor, x2, y + lineHeight * 1, width2);
+		    if (paramShowMpInBattleStatus){
+		    this.drawActorMp(actor, x2, y + lineHeight * 2, width2);
+			}
+		    if (paramShowTpInBattleStatus) {
+		      this.drawActorTp(actor, x2, y + lineHeight * 3, width2);
+		    }
+		};
+
         Window_InBattleStatus.prototype.refresh = function() {  
           this.contents.clear();
           if (!this._battler) return;
